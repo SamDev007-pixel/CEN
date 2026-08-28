@@ -13,6 +13,7 @@ router = APIRouter(prefix="/audit", tags=["Data Provenance & Audit Trail"])
 
 
 @router.get("/")
+@router.get("", include_in_schema=False)
 def get_audit_summary(db: Session = Depends(get_db)):
     """
     GET /audit: Returns system-wide statistical audit summary including raw-to-clean ratios,

@@ -14,6 +14,7 @@ ALLOWED_OBS_TYPES = {"OBSERVED", "ESTIMATED", "REFERENCE"}
 
 
 @router.get("/")
+@router.get("", include_in_schema=False)
 def get_latest_indices(
     method: Optional[str] = Query(None, description="Filter by method: Dutot, Jevons, DGCA_Weighted_Dutot"),
     frequency: Optional[str] = Query("DAILY", description="Filter by frequency: DAILY, WEEKLY, MONTHLY"),
