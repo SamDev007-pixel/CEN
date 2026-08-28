@@ -6,51 +6,67 @@ from app.models.db_models import RawFare, CleanFare
 
 logger = logging.getLogger(__name__)
 
-# Indian domestic aviation statutory tax estimate.
-# Typical breakdown: ~5% GST on base fare + airport charges (UDF, PSF, ADF).
-# This averages roughly 15% of total ticket price across carriers and routes.
-# Used ONLY when the data source provides no real breakdown (e.g., Google Flights).
-ESTIMATED_TAX_FRACTION = 0.15
-
 
 class FareNormalizer:
     """
-    Normalizes raw fare structures.
-
-    Google Flights (via fast-flights) returns ONLY a total price — no
-    base-fare / tax / ancillary breakdown is available.
-
-    This normalizer:
-      - Stores total_price as the canonical fare (what the index engine uses).
-      - Applies an *estimated* 85/15 base/tax split for informational
-        display, and flags it with tax_estimated = True.
-      - If a future data source provides real fields, uses them directly
-        and sets tax_estimated = False.
+    Normalizes raw fare structures adhering to rigorous statistical standards:
+    - Preserves total_price as the canonical, factual transaction quote.
+    - Does NOT fabricate an unobserved 5% GST or tax split when the source only provides total price.
+    - Explicitly sets `fare_decomposition_status`:
+        * EXACT: Source provides verified itemized base fare & taxes.
+        * PARTIAL: Some fare components are known.
+        * UNAVAILABLE: Source provides total price only (base_fare & tax set to NULL).
+    - Preserves `observation_type` (OBSERVED, ESTIMATED, or REFERENCE).
     """
 
     def normalize_single_flight(self, raw_fare: RawFare, flight_dict: Dict[str, Any]) -> CleanFare:
         total_price = float(flight_dict.get("total_price") or flight_dict.get("price") or 0.0)
 
-        # --- Tax / base-fare decomposition ---
-        # Check if the raw payload contains a REAL breakdown from the source
-        has_real_breakdown = (
-            "base_fare" in flight_dict
-            and "tax" in flight_dict
-            and flight_dict["base_fare"] is not None
-            and flight_dict["tax"] is not None
+        # 1. Observation Provenance (OBSERVED vs ESTIMATED vs REFERENCE)
+        raw_payload = raw_fare.raw_payload or {}
+        obs_type = (
+            flight_dict.get("observation_type")
+            or raw_payload.get("observation_type")
+            or ("ESTIMATED" if raw_fare.source == "calibrated_market_model" else "OBSERVED")
         )
 
-        if has_real_breakdown:
+        # 2. Fare Decomposition Verification
+        has_base_fare = flight_dict.get("base_fare") is not None
+        has_tax = flight_dict.get("tax") is not None
+        has_gst = flight_dict.get("gst") is not None
+        has_airport = flight_dict.get("airport_charges") is not None
+
+        if has_base_fare and has_tax:
             base_fare = float(flight_dict["base_fare"])
             tax = float(flight_dict["tax"])
+            gst = float(flight_dict["gst"]) if has_gst else None
+            airport_charges = float(flight_dict["airport_charges"]) if has_airport else None
+            udf = float(flight_dict.get("user_development_fee")) if flight_dict.get("user_development_fee") is not None else None
+            conv = float(flight_dict.get("convenience_fee")) if flight_dict.get("convenience_fee") is not None else None
+            decomposition_status = "EXACT"
+            tax_estimated = False
+        elif has_base_fare or has_tax or has_gst:
+            base_fare = float(flight_dict["base_fare"]) if has_base_fare else None
+            tax = float(flight_dict["tax"]) if has_tax else None
+            gst = float(flight_dict["gst"]) if has_gst else None
+            airport_charges = float(flight_dict["airport_charges"]) if has_airport else None
+            udf = float(flight_dict.get("user_development_fee")) if flight_dict.get("user_development_fee") is not None else None
+            conv = float(flight_dict.get("convenience_fee")) if flight_dict.get("convenience_fee") is not None else None
+            decomposition_status = "PARTIAL"
             tax_estimated = False
         else:
-            # No real breakdown available — apply labelled estimate
-            tax = round(total_price * ESTIMATED_TAX_FRACTION, 2)
-            base_fare = round(total_price - tax, 2)
+            # Source (e.g. Google Flights aggregator) only provides total quote.
+            # Do NOT fabricate an artificial base/tax split as observed data.
+            base_fare = None
+            tax = None
+            gst = None
+            airport_charges = None
+            udf = None
+            conv = None
+            decomposition_status = "UNAVAILABLE"
             tax_estimated = True
 
-        # Ancillary fees (baggage, meals, seats) — dropped from core inflation price
+        # Ancillary fees (baggage, meals, seat selection) — separate from core inflation fare
         ancillary_fees = float(flight_dict.get("ancillary_fees", 0.0))
 
         route = f"{raw_fare.origin}-{raw_fare.destination}"
@@ -62,10 +78,16 @@ class FareNormalizer:
             horizon=raw_fare.booking_horizon_days,
             airline=flight_dict.get("airline", "Unknown"),
             flight_number=flight_dict.get("flight_number"),
+            observation_type=obs_type,
             base_fare=base_fare,
             tax=tax,
+            gst=gst,
+            airport_charges=airport_charges,
+            user_development_fee=udf,
+            convenience_fee=conv,
             total_price=total_price,
             ancillary_fees=ancillary_fees,
+            fare_decomposition_status=decomposition_status,
             tax_estimated=tax_estimated,
             is_outlier=False,
             outlier_reason=None,

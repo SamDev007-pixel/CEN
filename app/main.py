@@ -1,17 +1,20 @@
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
 
 from app.config import settings
-from app.db import init_db
+from app.db import init_db, engine
 from app.scraping.scheduler import ScrapeScheduler
 from app.api.routes_index import router as index_router
 from app.api.routes_audit import router as audit_router
 from app.api.routes_export import router as export_router
+from app.api.routes_validation import router as validation_router
 
 logging.basicConfig(
-    level=logging.INFO if settings.DEBUG else logging.WARNING,
+    level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO),
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 logger = logging.getLogger("mospi-airfare-index")
@@ -22,8 +25,12 @@ scheduler_instance = ScrapeScheduler()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    logger.info("Initializing database schema...")
-    init_db()
+    logger.info(f"Starting MoSPI Airfare Index backend in [{settings.ENVIRONMENT}] mode...")
+    try:
+        init_db()
+        logger.info("Database schema initialized successfully.")
+    except Exception as e:
+        logger.error(f"Database initialization warning: {e}")
     
     # Start APScheduler background scraping job
     logger.info("Starting background APScheduler...")
@@ -33,43 +40,49 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
-    logger.info("Shutting down background scheduler...")
+    logger.info("Shutting down background scheduler and resources...")
     scheduler_instance.stop_scheduler()
+    engine.dispose()
+    logger.info("Shutdown complete.")
 
 
 app = FastAPI(
     title="MoSPI Domestic Airfare Index System",
     description=(
         "Automated high-frequency civil aviation airfare scraper, outlier filter, "
-        "and Dutot/Jevons price index computation engine for MoSPI / NSO CPI aggregation."
+        "and Dutot/Jevons price index computation engine for MoSPI / NSO CPI aggregation (COICOP 07.3.3.1)."
     ),
     version="1.0.0",
     lifespan=lifespan
 )
 
-# Enable CORS for external Frontend / UI (e.g. Next.js, React, Vite)
+# CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:8080",
-        "http://127.0.0.1:8080",
-        "http://localhost:4173",
-        "http://127.0.0.1:4173",
-        "*"
-    ],
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Custom Global Exception Handler (Prevents stack trace leaks in production)
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled exception on {request.method} {request.url.path}: {exc}", exc_info=settings.DEBUG)
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "error": "Internal Server Error",
+            "message": "An unexpected error occurred processing your request. Details have been logged.",
+            "path": request.url.path
+        }
+    )
 
 # Include all API Routers
 app.include_router(index_router)
 app.include_router(audit_router)
 app.include_router(export_router)
+app.include_router(validation_router)
 
 
 @app.get("/", tags=["Health & Status"])
@@ -78,14 +91,44 @@ def root():
         "status": "online",
         "service": "MoSPI Airfare Index Engine",
         "version": "1.0.0",
+        "environment": settings.ENVIRONMENT,
         "routes_monitored": settings.routes_list,
         "booking_horizons_days": settings.horizons_list,
         "endpoints": {
             "latest_index": "/index",
             "route_history": "/index/{route}",
             "audit_overview": "/audit",
-            "route_audit_lineage": "/audit/{route}",
+            "sources_health": "/audit/sources/health",
+            "scrape_runs": "/audit/runs",
+            "backtest_validation": "/validation/backtest",
+            "validation_metrics": "/validation/metrics",
+            "validation_coverage": "/validation/coverage",
+            "route_validation": "/validation/routes",
+            "validation_runs": "/validation/runs",
             "export_table": "/export?format=csv|json",
+            "health_liveness": "/health",
+            "health_readiness": "/health/ready",
             "swagger_docs": "/docs"
         }
     }
+
+
+@app.get("/health", tags=["Health & Status"])
+def health_liveness():
+    """Liveness check verifying the application process is running."""
+    return {"status": "healthy", "timestamp": "ok"}
+
+
+@app.get("/health/ready", tags=["Health & Status"])
+def health_readiness():
+    """Readiness check verifying database connectivity and connection pool status."""
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return {"status": "ready", "database": "connected"}
+    except Exception as e:
+        logger.error(f"Readiness check failed: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"status": "unready", "database": "disconnected"}
+        )

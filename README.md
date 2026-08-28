@@ -1,69 +1,83 @@
-# MoSPI Airfare Index System
+# MoSPI Airfare Index System — AirIndex India
 
-An automated data scraping, cleaning, outlier filtering, and statistical index computation engine (Dutot / Jevons / DGCA-weighted indices) for tracking airfares across domestic flight routes.
+An automated high-frequency data collection, cleaning, outlier filtering, statistical elementary index computation engine (Dutot / Jevons / Prototype Weighted Indices), historical backtesting validation pipeline, and Next.js modern statistical dashboard designed for tracking domestic airfare inflation under Ministry of Statistics and Programme Implementation (MoSPI) / National Statistical Office (NSO) Consumer Price Index (CPI) methodology (COICOP 07.3.3.1).
 
-## Architecture
+> [!NOTE]
+> This system is an **NSO/MoSPI-oriented prototype** developed for the Smart India Hackathon (SIH) airfare index problem statement.
+> Official DGCA validation is currently marked as **PENDING** until certified monthly DGCA route passenger yield datasets are ingested.
+
+---
+
+## 1. System Architecture (Phases 1, 2, 3, & 4)
 
 ```
-mospi-airfare-index/
-├── app/
-│   ├── main.py                  # FastAPI app entrypoint, mounts routers
-│   ├── config.py                # settings (routes, horizons, DB URL, scrape schedule)
-│   │
-│   ├── scraping/
-│   │   ├── __init__.py
-│   │   ├── flight_client.py     # wraps fast-flights calls
-│   │   ├── scheduler.py         # runs scrapes across route x horizon matrix
-│   │   └── raw_store.py         # writes raw responses + hash + timestamp + source
-│   │
-│   ├── processing/
-│   │   ├── __init__.py
-│   │   ├── normalize.py         # strips ancillary fees -> base fare + tax
-│   │   ├── outliers.py          # Z-score / Isolation Forest filtering
-│   │   └── index_engine.py      # Dutot/Jevons calc, DGCA weighting
-│   │
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── db_models.py         # SQLAlchemy models: RawFare, CleanFare, IndexValue
-│   │
-│   ├── api/
-│   │   ├── __init__.py
-│   │   ├── routes_index.py      # GET /index, /index/{route}
-│   │   ├── routes_audit.py      # GET /audit (data lineage, outlier flags)
-│   │   └── routes_export.py     # GET /export (CSV/JSON for NSO format)
-│   │
-│   └── db.py                    # DB session/engine setup
-│
-├── scripts/
-│   └── run_daily_scrape.py      # standalone script/cron entrypoint
-│
-├── tests/
-│   └── ...
-│
-├── .env                         # DB URL, secrets
-├── requirements.txt
-└── README.md
+[ NEXT.JS 16 APP ROUTER DASHBOARD (AIRINDEX INDIA) ]
+Dashboard (/) • Routes (/routes) • Advance Window (/booking-window) • Airlines (/airlines)
+Data Quality (/data-quality) • Validation (/validation) • Audit (/audit) • Collection (/collection)
+                                  |
+                                  v  REST API
+[ FASTAPI HIGH-FREQUENCY BACKEND ENGINE ]
+/index • /audit • /validation • /export (COICOP 07.3.3.1 CSV/JSON)
+                                  |
+                                  v
+[ MULTI-SOURCE SCRAPING & INGESTION LAYER ]
+Google Flights | OTA Gateway | Playwright Headless Browser | Ingestion Validator
+                                  |
+                                  v
+[ STATISTICAL NORMALIZATION & OUTLIER FILTERING ]
+3-Sigma Z-Score + IQR Filter • OBSERVED vs ESTIMATED • EXACT vs UNAVAILABLE
+                                  |
+                                  v
+[ NEON CLOUD POSTGRESQL DATABASE ]
+raw_fares • clean_fares • index_values • scrape_runs • reference_data • validation_results
 ```
 
-## Quickstart
+---
 
-1. **Install Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 2. Frontend Application (Next.js)
 
-2. **Run FastAPI Server**
-   ```bash
-   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-   ```
+### Available Pages:
+* `/` — **Main Dashboard**: Real-time National Composite Index KPI, Dutot/Jevons method toggle, interactive trend charts, route cards, NSO export triggers.
+* `/routes` — **Route Explorer**: Corridor selector (DEL-BOM, BLR-DEL, etc.), historical index trajectory, observed fare ranges, and airline carrier shares.
+* `/booking-window` — **Advance Purchase Analysis**: Standardized lead-time curves across $T+1, T+7, T+15, T+30, T+45$ days.
+* `/airlines` — **Airline Analysis**: Carrier quote density, average fares, fare ranges, and network corridor coverage.
+* `/data-quality` — **Data Quality & Governance**: Three-tier coverage metrics (Observation vs Route vs Source Coverage), outlier rejection rates, fare decomposition status.
+* `/validation` — **Historical Backtest & Validation**: Deterministic 45-day index series reconstruction, sensitivity bounds, and pending DGCA benchmark status.
+* `/audit` — **Cryptographic Data Lineage**: 5-stage pipeline visualization, SHA-256 payload inspection, and outlier score audits.
+* `/collection` — **Collection & Health Monitor**: Live status of scraper adapters, response latencies, and execution run logs.
 
-3. **Trigger Scrape Manually**
-   ```bash
-   python scripts/run_daily_scrape.py
-   ```
+### Running the Frontend Locally:
+```bash
+cd frontend
+npm install
+npm run dev
+# Dashboard accessible at http://localhost:3000
+```
 
-4. **API Endpoints**
-   - API Docs: `http://localhost:8000/docs`
-   - Index Metrics: `http://localhost:8000/index`
-   - Audit / Lineage: `http://localhost:8000/audit`
-   - NSO Export: `http://localhost:8000/export`
+### Frontend Tests & Build:
+```bash
+cd frontend
+npm test          # Runs Vitest unit & API mock tests (5/5 passing)
+npm run build     # Compiles optimized static production bundle (11/11 pages)
+```
+
+---
+
+## 3. Backend & CLI Verification
+
+```bash
+# 1. Run Complete Automated Test Suite (41/41 passing)
+pytest
+
+# 2. Run Comprehensive Deep System Audit (100% PASS on Neon DB)
+python scripts/deep_system_audit.py
+
+# 3. Run Historical Backtest CLI
+python scripts/run_backtest.py --start-date 2026-08-30 --end-date 2026-10-13
+
+# 4. Import External Reference Benchmarks
+python scripts/import_reference_data.py --seed-sample
+
+# 5. Start FastAPI Backend Locally
+uvicorn app.main:app --reload --port 8000
+```

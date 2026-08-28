@@ -1,37 +1,56 @@
-from typing import Optional
+import datetime
+from typing import Optional, List
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from app.db import get_db
-from app.models.db_models import RawFare, CleanFare
+from sqlalchemy import func
 
-router = APIRouter(prefix="/audit", tags=["Data Lineage & Audit"])
+from app.db import get_db
+from app.models.db_models import RawFare, CleanFare, ScrapeRun
+from app.scraping.registry import registry
+from app.scraping.health import health_tracker
+
+router = APIRouter(prefix="/audit", tags=["Data Provenance & Audit Trail"])
 
 
 @router.get("/")
-def get_audit_overview(
-    limit: int = Query(50, ge=1, le=200),
-    db: Session = Depends(get_db)
-):
+def get_audit_summary(db: Session = Depends(get_db)):
     """
-    Returns general audit overview across all routes including total scrapes and outlier stats.
+    GET /audit: Returns system-wide statistical audit summary including raw-to-clean ratios,
+    outlier exclusion rates, and fare decomposition status breakdown.
     """
-    total_raw = db.query(RawFare).count()
-    total_clean = db.query(CleanFare).count()
-    total_outliers = db.query(CleanFare).filter(CleanFare.is_outlier == True).count()
+    total_raw = db.query(func.count(RawFare.id)).scalar() or 0
+    total_clean = db.query(func.count(CleanFare.id)).scalar() or 0
     
-    recent_raw = (
-        db.query(RawFare)
-        .order_by(RawFare.timestamp.desc())
-        .limit(limit)
-        .all()
-    )
+    total_observed = db.query(func.count(CleanFare.id)).filter(CleanFare.observation_type == "OBSERVED").scalar() or 0
+    total_estimated = db.query(func.count(CleanFare.id)).filter(CleanFare.observation_type == "ESTIMATED").scalar() or 0
+    
+    total_outliers = db.query(func.count(CleanFare.id)).filter(CleanFare.is_outlier == True).scalar() or 0
+    
+    decomp_query = db.query(
+        CleanFare.fare_decomposition_status, func.count(CleanFare.id)
+    ).group_by(CleanFare.fare_decomposition_status).all()
+    
+    decomp_dict = {"EXACT": 0, "PARTIAL": 0, "UNAVAILABLE": 0}
+    for status_name, cnt in decomp_query:
+        if status_name in decomp_dict:
+            decomp_dict[status_name] = cnt
+
+    recent_raw = db.query(RawFare).order_by(RawFare.timestamp.desc()).limit(15).all()
 
     return {
         "summary": {
             "total_raw_scrapes": total_raw,
             "total_clean_observations": total_clean,
+            "total_observed_quotes": total_observed,
+            "total_estimated_quotes": total_estimated,
+            "observed_coverage_pct": round((total_observed / total_clean * 100.0), 2) if total_clean > 0 else 100.0,
             "total_outliers_flagged": total_outliers,
-            "outlier_rate_pct": round((total_outliers / total_clean * 100), 2) if total_clean > 0 else 0.0
+            "outlier_rate_pct": round((total_outliers / total_clean * 100.0), 2) if total_clean > 0 else 0.0,
+            "fare_decomposition_breakdown": {
+                "exact": decomp_dict["EXACT"],
+                "partial": decomp_dict["PARTIAL"],
+                "unavailable": decomp_dict["UNAVAILABLE"]
+            }
         },
         "recent_scrapes": [
             {
@@ -40,12 +59,86 @@ def get_audit_overview(
                 "source": r.source,
                 "origin": r.origin,
                 "destination": r.destination,
-                "travel_date": r.travel_date.strftime("%Y-%m-%d"),
+                "travel_date": r.travel_date.isoformat(),
                 "booking_horizon_days": r.booking_horizon_days,
                 "payload_hash": r.payload_hash,
-                "quotes_count": len((r.raw_payload or {}).get("flights", []))
+                "quotes_count": len(r.clean_fares) if r.clean_fares else 0
             }
             for r in recent_raw
+        ]
+    }
+
+
+@router.get("/sources/health")
+def get_sources_health():
+    """
+    GET /audit/sources/health: Returns real-time health, response time, and consecutive
+    failure metrics for all registered data sources.
+    """
+    all_sources = registry.list_all_sources()
+    live_health = health_tracker.get_all_health()
+
+    report = []
+    for src in all_sources:
+        name = src["source_name"]
+        health_info = live_health.get(name, {
+            "status": "HEALTHY" if src["enabled"] else "DISABLED",
+            "last_success": None,
+            "last_failure": None,
+            "consecutive_failures": 0,
+            "total_queries": 0,
+            "successful_queries": 0,
+            "total_quotes_collected": 0,
+            "last_error": None,
+            "last_response_time_ms": 0.0
+        })
+        report.append({
+            "source_name": name,
+            "source_type": src["source_type"],
+            "enabled": src["enabled"],
+            "priority": src["priority"],
+            "is_fallback_model": src["is_fallback_model"],
+            "compliance_status": src["compliance_status"],
+            "health": health_info
+        })
+
+    return {
+        "sources_count": len(report),
+        "sources": report
+    }
+
+
+@router.get("/runs")
+def get_scrape_runs(
+    limit: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db)
+):
+    """
+    GET /audit/runs: Returns chronological scrape execution run logs.
+    """
+    runs = db.query(ScrapeRun).order_by(ScrapeRun.started_at.desc()).limit(limit).all()
+    return {
+        "runs_count": len(runs),
+        "runs": [
+            {
+                "id": r.id,
+                "run_id": r.run_id,
+                "started_at": r.started_at.isoformat(),
+                "completed_at": r.completed_at.isoformat() if r.completed_at else None,
+                "status": r.status,
+                "source": r.source,
+                "route": r.route,
+                "horizon": r.horizon,
+                "attempted": r.attempted,
+                "successful": r.successful,
+                "records_collected": r.records_collected,
+                "records_rejected": r.records_rejected,
+                "error_count": r.error_count,
+                "error_message": r.error_message,
+                "duration_seconds": r.duration_seconds,
+                "metadata": r.metadata_json
+            }
+            for r in runs
         ]
     }
 
@@ -54,41 +147,42 @@ def get_audit_overview(
 def get_route_audit_lineage(
     route: str,
     only_outliers: bool = Query(False, description="Filter solely to outlier flagged observations"),
-    limit: int = Query(100, ge=1, le=1000),
     db: Session = Depends(get_db)
 ):
     """
-    GET /audit/{route}: Returns raw fares and cleaned observations for a specific route,
-    identifying which quotes were flagged as outliers and why, complete with SHA-256 payload lineage.
+    GET /audit/{route}: Returns full provenance audit trail for individual clean observations on a route.
     """
-    formatted_route = route.upper().strip()
-    query = db.query(CleanFare).filter(CleanFare.route == formatted_route)
-
+    query = db.query(CleanFare).filter(CleanFare.route == route)
     if only_outliers:
         query = query.filter(CleanFare.is_outlier == True)
 
-    clean_fares = query.order_by(CleanFare.date.desc(), CleanFare.id.desc()).limit(limit).all()
+    fares = query.order_by(CleanFare.date.asc(), CleanFare.horizon.asc()).all()
 
-    if not clean_fares and not db.query(CleanFare).filter(CleanFare.route == formatted_route).first():
-        raise HTTPException(
-            status_code=404,
-            detail=f"No audit or fare records found for route '{formatted_route}'"
-        )
+    if not fares:
+        raise HTTPException(status_code=404, detail=f"No audit observations found for corridor {route}")
 
-    lineage_records = []
-    for f in clean_fares:
-        raw_rec = f.raw_fare
-        lineage_records.append({
+    total_count = len(fares)
+    observed_count = sum(1 for f in fares if f.observation_type == "OBSERVED")
+    estimated_count = sum(1 for f in fares if f.observation_type == "ESTIMATED")
+    outlier_count = sum(1 for f in fares if f.is_outlier)
+
+    records = []
+    for f in fares:
+        raw_fare_parent = f.raw_fare
+        records.append({
             "clean_fare_id": f.id,
             "route": f.route,
-            "travel_date": f.date.strftime("%Y-%m-%d"),
+            "travel_date": f.date.isoformat(),
             "horizon_days": f.horizon,
             "airline": f.airline,
             "flight_number": f.flight_number,
+            "observation_type": f.observation_type,
+            "fare_decomposition_status": f.fare_decomposition_status,
+            "total_price": f.total_price,
             "base_fare": f.base_fare,
             "tax": f.tax,
+            "gst": f.gst,
             "tax_estimated": f.tax_estimated,
-            "total_price": f.total_price,
             "ancillary_fees_dropped": f.ancillary_fees,
             "is_outlier": f.is_outlier,
             "outlier_reason": f.outlier_reason,
@@ -96,17 +190,17 @@ def get_route_audit_lineage(
             "cleaned_at": f.cleaned_at.isoformat(),
             "lineage": {
                 "source_raw_fare_id": f.source_raw_fare_id,
-                "scrape_timestamp": raw_rec.timestamp.isoformat() if raw_rec else None,
-                "source_engine": raw_rec.source if raw_rec else None,
-                "sha256_payload_hash": raw_rec.payload_hash if raw_rec else None
+                "scrape_timestamp": raw_fare_parent.timestamp.isoformat() if raw_fare_parent else None,
+                "source_engine": raw_fare_parent.source if raw_fare_parent else None,
+                "sha256_payload_hash": raw_fare_parent.payload_hash if raw_fare_parent else None
             }
         })
 
-    outlier_count = sum(1 for rec in lineage_records if rec["is_outlier"])
-
     return {
-        "route": formatted_route,
-        "sample_count": len(lineage_records),
+        "route": route,
+        "sample_count": total_count,
+        "observed_count": observed_count,
+        "estimated_count": estimated_count,
         "outlier_count": outlier_count,
-        "observations": lineage_records
+        "observations": records
     }

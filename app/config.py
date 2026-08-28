@@ -1,12 +1,23 @@
 import os
 import json
-from typing import List, Union
+from typing import List, Dict, Union, Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "sqlite:///./mospi_airfare.db"
-    SCRAPE_SCHEDULE_CRON: str = "0 2 * * *"
+    ENVIRONMENT: str = "development"
+    DEBUG: bool = False
+    LOG_LEVEL: str = "INFO"
+
+    DATABASE_URL: str = "postgresql://neondb_owner:npg_c6SBzIg0dqje@ep-wispy-leaf-azsif5wh-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    DB_POOL_SIZE: int = 10
+    DB_MAX_OVERFLOW: int = 20
+    DB_POOL_TIMEOUT: int = 30
+    DB_POOL_RECYCLE: int = 300
+
+    CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,http://127.0.0.1:8000"
+
+    SCRAPE_SCHEDULE_CRON: str = "0 * * * *"
     DEFAULT_HORIZONS: Union[str, List[int]] = [1, 7, 15, 30, 45]
     DEFAULT_ROUTES: Union[str, List[str]] = [
         "DEL-BOM",
@@ -16,9 +27,53 @@ class Settings(BaseSettings):
         "BOM-BLR",
         "DEL-CCU"
     ]
+
+    # --- Scraping & Resilience Configuration ---
+    SCRAPER_USER_AGENT: str = "AirIndexIndiaBot/1.0 (+https://github.com/SamDev007-pixel/CEN; contact=mospi-airindex@gov.in.prototype)"
+    SCRAPER_REQUEST_TIMEOUT: int = 15
+    SCRAPER_MAX_RETRIES: int = 2
+    SCRAPER_BACKOFF_FACTOR: float = 1.5
+    SCRAPER_MIN_DELAY_SEC: float = 1.0
+    SCRAPER_MAX_DELAY_SEC: float = 2.5
+    
+    # Source toggles
+    ENABLE_GOOGLE_FLIGHTS: bool = True
+    ENABLE_PLAYWRIGHT: bool = True
+    ENABLE_OTA_GATEWAY: bool = True
+    ENABLE_FALLBACK_ESTIMATES: bool = True
+
+    # Source Priority order
+    SOURCE_PRIORITY: List[str] = [
+        "google_flights",
+        "ota_gateway",
+        "playwright_headless",
+        "calibrated_market_model"
+    ]
+
+    # Provisional route weights based on civil aviation passenger traffic distribution.
+    PROTOTYPE_ROUTE_WEIGHTS: Dict[str, float] = {
+        "DEL-BOM": 0.35,
+        "BLR-DEL": 0.25,
+        "HYD-MAA": 0.15,
+        "DEL-CCU": 0.15,
+        "DEL-MAA": 0.05,
+        "BOM-BLR": 0.05
+    }
+    WEIGHT_SOURCE_METADATA: Dict[str, Union[str, bool]] = {
+        "source": "PROTOTYPE_CIVIL_AVIATION_SHARE_2024",
+        "reference_period": "2024-Q1",
+        "is_official": False,
+        "methodology_version": "v1.0-prototype"
+    }
+
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8000
-    DEBUG: bool = True
+
+    @property
+    def cors_origins_list(self) -> List[str]:
+        if not self.CORS_ORIGINS:
+            return ["http://localhost:3000", "http://127.0.0.1:3000"]
+        return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
 
     @property
     def horizons_list(self) -> List[int]:

@@ -1,13 +1,13 @@
 import pytest
+import datetime
 from app.processing.normalize import FareNormalizer
 from app.processing.index_engine import IndexEngine
 from app.processing.outliers import OutlierDetector
 from app.models.db_models import RawFare
-import datetime
 
 
-def test_normalize_flight_with_estimated_tax():
-    """When raw payload has only total_price (Google Flights case), tax should be estimated."""
+def test_normalize_flight_total_price_only_decomposition_unavailable():
+    """When raw payload has only total_price (Google Flights case), base_fare & tax remain None and status is UNAVAILABLE."""
     normalizer = FareNormalizer()
     raw = RawFare(
         id=999,
@@ -28,15 +28,17 @@ def test_normalize_flight_with_estimated_tax():
     clean = normalizer.normalize_single_flight(raw, flight_dict)
     assert clean.airline == "IndiGo"
     assert clean.total_price == 5000.0
-    assert clean.base_fare == 4250.0      # 5000 * 0.85
-    assert clean.tax == 750.0             # 5000 * 0.15
-    assert clean.tax_estimated is True    # Flagged as estimate
+    assert clean.base_fare is None
+    assert clean.tax is None
+    assert clean.fare_decomposition_status == "UNAVAILABLE"
+    assert clean.tax_estimated is True
+    assert clean.observation_type == "OBSERVED"
     assert clean.route == "DEL-BOM"
     assert clean.horizon == 7
 
 
-def test_normalize_flight_with_real_breakdown():
-    """When raw payload contains real base_fare and tax fields, use them directly."""
+def test_normalize_flight_with_exact_real_breakdown():
+    """When raw payload contains real base_fare and tax fields, use them directly with EXACT status."""
     normalizer = FareNormalizer()
     raw = RawFare(
         id=1000,
@@ -53,14 +55,19 @@ def test_normalize_flight_with_real_breakdown():
         "airline": "Vistara",
         "flight_number": "UK-805",
         "total_price": 6000.0,
-        "base_fare": 4800.0,   # Real value from API
-        "tax": 1200.0,         # Real value from API
+        "base_fare": 4800.0,
+        "tax": 1200.0,
+        "gst": 240.0,
+        "observation_type": "OBSERVED"
     }
     clean = normalizer.normalize_single_flight(raw, flight_dict)
     assert clean.total_price == 6000.0
     assert clean.base_fare == 4800.0
     assert clean.tax == 1200.0
-    assert clean.tax_estimated is False   # Real breakdown — NOT estimated
+    assert clean.gst == 240.0
+    assert clean.fare_decomposition_status == "EXACT"
+    assert clean.tax_estimated is False
+    assert clean.observation_type == "OBSERVED"
 
 
 def test_dutot_calculation():
