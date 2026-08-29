@@ -187,52 +187,43 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      {/* Modern PWA Install Banner */}
+      {/* Minimal & Clean PWA Install Banner */}
       {showInstallBanner && isInstallable && !isStandalone && (
-        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 bg-slate-900/95 border border-slate-700 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-6">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 p-1 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/icon-192x192.png"
-                  alt="AirIndex Logo"
-                  className="w-full h-full object-contain rounded-lg"
-                />
-              </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <h4 className="text-sm font-bold text-white">Install AirIndex App</h4>
-                  <span className="text-[9px] font-bold uppercase bg-[var(--color-gold)]/20 text-[var(--color-gold)] px-1.5 py-0.5 rounded">
-                    PWA
-                  </span>
-                </div>
-                <p className="text-xs text-slate-300 mt-0.5">
-                  Install on your desktop or mobile home screen for quick offline access and real-time alerts.
-                </p>
-              </div>
+        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-40 bg-slate-900/95 dark:bg-slate-900/95 border border-slate-800/90 backdrop-blur-xl text-white p-2.5 sm:p-3 rounded-xl shadow-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-slate-800/90 border border-slate-700/60 p-1 flex items-center justify-center flex-shrink-0">
+              <img
+                src="/icon-192x192.png"
+                alt="AirIndex Logo"
+                className="w-full h-full object-contain rounded"
+              />
             </div>
-            <button
-              onClick={dismissInstallBanner}
-              className="text-slate-400 hover:text-white p-1 rounded-md transition-colors"
-              aria-label="Dismiss install prompt"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-white leading-none">AirIndex App</span>
+                <span className="text-[9px] font-semibold text-[var(--color-gold)] leading-none">PWA</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-tight mt-0.5 truncate">
+                Install for offline access & faster loading
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-800">
-            <button
-              onClick={dismissInstallBanner}
-              className="px-3 py-1.5 text-xs text-slate-400 hover:text-white font-medium transition-colors"
-            >
-              Maybe Later
-            </button>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
             <button
               onClick={installPwa}
-              className="flex items-center gap-1.5 px-4 py-1.5 bg-[var(--color-gold)] hover:bg-[var(--color-gold)]/90 text-slate-950 font-bold text-xs rounded-lg transition-colors shadow-md cursor-pointer"
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--color-gold)] hover:bg-[var(--color-gold)]/90 text-slate-950 font-bold text-xs rounded-lg transition-all shadow-sm cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Install Now</span>
+              <span>Install</span>
+            </button>
+            <button
+              onClick={dismissInstallBanner}
+              className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
+              aria-label="Close"
+              title="Dismiss"
+            >
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
