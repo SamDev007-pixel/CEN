@@ -5,8 +5,9 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Sun, Moon, Menu, X, ChevronRight } from "lucide-react";
+import { Sun, Moon, Menu, X, ChevronRight, Download, Smartphone } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
+import { usePwa } from "@/components/pwa/PwaProvider";
 
 const NAV_LINKS = [
   { name: "Dashboard", href: "/" },
@@ -22,6 +23,7 @@ const NAV_LINKS = [
 export default function Navbar() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const { isInstallable, isStandalone, installPwa } = usePwa();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -103,8 +105,20 @@ export default function Navbar() {
               })}
             </nav>
 
-            {/* Right: Theme Switcher (Desktop) OR Three-Dashed Hamburger Menu Button (Mobile) */}
+            {/* Right: Theme Switcher, PWA Install & Hamburger */}
             <div className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
+              {/* PWA Install Button (Desktop) */}
+              {isInstallable && !isStandalone && (
+                <button
+                  onClick={installPwa}
+                  className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[var(--color-gold)]/10 hover:bg-[var(--color-gold)]/20 border border-[var(--color-gold)]/40 text-[var(--color-gold)] text-xs font-semibold transition-all duration-150 shadow-sm cursor-pointer"
+                  title="Install AirIndex Web App"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span className="text-[11px] font-bold">Install App</span>
+                </button>
+              )}
+
               {/* Theme Toggle Button (Desktop Only) */}
               <button
                 onClick={toggleTheme}
@@ -241,6 +255,37 @@ export default function Navbar() {
                   );
                 })}
               </nav>
+
+              {/* PWA Install Action (Mobile) */}
+              {isInstallable && !isStandalone && (
+                <div
+                  className={`p-3.5 mx-4 mb-2 rounded-xl border flex items-center justify-between gap-3 ${
+                    theme === "dark"
+                      ? "bg-slate-900/90 border-[var(--color-gold)]/30 text-white"
+                      : "bg-amber-50/90 border-[var(--color-gold)]/40 text-slate-900"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="p-2 rounded-lg bg-[var(--color-gold)]/20 text-[var(--color-gold)] flex-shrink-0">
+                      <Smartphone className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold truncate">Install AirIndex App</div>
+                      <div className="text-[10px] text-slate-400 truncate">Add to Home Screen</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSidebarOpen(false);
+                      installPwa();
+                    }}
+                    className="px-3 py-1.5 bg-[var(--color-gold)] hover:bg-[var(--color-gold)]/90 text-slate-950 font-bold text-xs rounded-lg transition-colors shadow-sm flex items-center gap-1 cursor-pointer flex-shrink-0"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Install</span>
+                  </button>
+                </div>
+              )}
 
               {/* Appearance Theme Switcher */}
               <div

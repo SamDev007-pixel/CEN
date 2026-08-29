@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Noto_Sans, Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { PwaProvider } from "@/components/pwa/PwaProvider";
 
 const notoSans = Noto_Sans({
   subsets: ["latin"],
@@ -19,12 +20,42 @@ const outfit = Outfit({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0c0f17" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
+
 export const metadata: Metadata = {
   title: "AirIndex India — Real-Time Indian Airfare Price Index",
   description:
     "High-frequency domestic airfare inflation monitoring platform under Ministry of Statistics and Programme Implementation (MoSPI) / NSO CPI methodology.",
+  applicationName: "AirIndex India",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "AirIndex",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   icons: {
-    icon: "/mospi_logo.png",
+    icon: [
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
 };
 
@@ -41,11 +72,14 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans app-bg-primary app-text-primary transition-colors duration-200 selection:bg-[var(--color-gold-bg)] selection:text-[var(--color-gold)]">
         <ThemeProvider>
-          <Navbar />
-          <main className="flex-1 pb-16">{children}</main>
-          <Footer />
+          <PwaProvider>
+            <Navbar />
+            <main className="flex-1 pb-16">{children}</main>
+            <Footer />
+          </PwaProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+
