@@ -187,9 +187,9 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      {/* Minimal & Clean PWA Install Banner */}
+      {/* Minimal & Clean PWA Install Banner (Mobile/Tablet only, since Desktop has Navbar install button) */}
       {showInstallBanner && isInstallable && !isStandalone && (
-        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-40 bg-slate-900/95 dark:bg-slate-900/95 border border-slate-800/90 backdrop-blur-xl text-white p-2.5 sm:p-3 rounded-xl shadow-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-40 bg-slate-900/95 dark:bg-slate-900/95 border border-slate-800/90 backdrop-blur-xl text-white p-2.5 sm:p-3 rounded-xl shadow-xl flex lg:hidden items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-slate-800/90 border border-slate-700/60 p-1 flex items-center justify-center flex-shrink-0">
               <img
