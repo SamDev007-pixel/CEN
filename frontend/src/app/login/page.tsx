@@ -126,32 +126,32 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 sm:p-6 bg-[#F8FAFC] overflow-hidden">
-      {/* Background Photography with Soft White Wash Overlay */}
+    <div className="relative min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center p-3 sm:p-4 bg-[#F8FAFC] overflow-hidden my-auto">
+      {/* Background Photography with Soft Wash Overlay */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0 opacity-20"
         style={{ backgroundImage: "url('/desktop_runway_bg.jpg')" }}
       />
 
       {/* Central Pure White Government Login Box */}
-      <div className="relative z-10 w-full max-w-md bg-white border border-[#CBDCEE] rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
+      <div className="relative z-10 w-full max-w-md bg-white border border-[#CBDCEE] rounded-2xl shadow-xl p-5 sm:p-6 space-y-4">
         
         {/* Top Header: Official Emblem & Department Name */}
-        <div className="text-center space-y-2 border-b border-[#CBDCEE] pb-5">
+        <div className="text-center space-y-1.5 border-b border-[#CBDCEE] pb-3.5">
           <div className="flex justify-center">
             <Image
               src="/emblem_lion_dark.png"
               alt="National Emblem of India"
-              width={34}
-              height={50}
-              className="object-contain max-h-12 w-auto"
+              width={32}
+              height={46}
+              className="object-contain max-h-11 w-auto"
               unoptimized
               priority
             />
           </div>
           <div>
             {/* Deep Midnight Black/Navy: #111827 */}
-            <h1 className="text-base font-extrabold text-[#111827] tracking-tight">
+            <h1 className="text-sm sm:text-base font-extrabold text-[#111827] tracking-tight">
               GOVERNMENT OF INDIA
             </h1>
             {/* MoSPI Gold Text: #B8860B */}
@@ -159,13 +159,13 @@ export default function LoginPage() {
               Ministry of Statistics & Programme Implementation
             </p>
             {/* Soft Slate Gray-Blue: #7D8CA3 */}
-            <p className="text-[11px] text-[#7D8CA3]">
+            <p className="text-[10.5px] text-[#7D8CA3]">
               Project CEN • Airfare Price Index Portal
             </p>
           </div>
-          <div className="pt-2">
+          <div className="pt-1">
             {/* Gold Badge Matching MoSPI Pill */}
-            <span className="inline-block text-[11px] font-extrabold uppercase tracking-wider px-3 py-0.5 rounded-md bg-amber-50/90 border border-amber-300/80 text-[#B8860B] shadow-2xs">
+            <span className="inline-block text-[10.5px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-amber-50/90 border border-amber-300/80 text-[#B8860B] shadow-2xs">
               Official Login
             </span>
           </div>
@@ -173,14 +173,14 @@ export default function LoginPage() {
 
         {/* Error Alert Banner */}
         {(error || captchaError) && (
-          <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-start gap-2 text-xs">
+          <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-start gap-2 text-xs">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <span>{error || captchaError}</span>
           </div>
         )}
 
         {/* Standard Clean Form */}
-        <form onSubmit={handleFormSubmit} className="space-y-4">
+        <form onSubmit={handleFormSubmit} className="space-y-3">
           {/* Username / Registered Email */}
           <div>
             <label className="block text-xs font-semibold text-[#111827] mb-1">
@@ -192,7 +192,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="officer@mospi.gov.in"
               required
-              className="w-full px-3 py-2 text-xs sm:text-sm rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-colors placeholder:text-[#B8860B]/70"
+              className="w-full px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-colors placeholder:text-[#B8860B]/70"
             />
           </div>
 
@@ -208,7 +208,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
                 required
-                className="w-full px-3 py-2 pr-9 text-xs sm:text-sm rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-colors placeholder:text-[#B8860B]/70"
+                className="w-full px-3 py-1.5 sm:py-2 pr-9 text-xs sm:text-sm rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-colors placeholder:text-[#B8860B]/70"
               />
               <button
                 type="button"
@@ -232,7 +232,7 @@ export default function LoginPage() {
                 <canvas
                   ref={canvasRef}
                   width={110}
-                  height={36}
+                  height={34}
                   data-captcha={captchaCode}
                   className="rounded-lg border border-[#CBDCEE] block select-none cursor-pointer bg-[#EEF4FA]"
                   onClick={refreshCaptcha}
@@ -244,7 +244,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={refreshCaptcha}
-                className="p-2 rounded-lg bg-[#EEF4FA] hover:bg-[#DDE9F6] border border-[#CBDCEE] text-[#1E2A44] transition-colors cursor-pointer flex-shrink-0"
+                className="p-1.5 sm:p-2 rounded-lg bg-[#EEF4FA] hover:bg-[#DDE9F6] border border-[#CBDCEE] text-[#1E2A44] transition-colors cursor-pointer flex-shrink-0"
                 title="Reload CAPTCHA"
               >
                 <RotateCcw className={`w-4 h-4 ${isRotating ? "animate-spin" : ""}`} />
@@ -259,25 +259,25 @@ export default function LoginPage() {
                   placeholder="Enter code"
                   maxLength={6}
                   required
-                  className="w-full px-3 py-2 text-xs sm:text-sm font-mono tracking-wider rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-colors placeholder:text-[#B8860B]/70"
+                  className="w-full px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-mono tracking-wider rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-colors placeholder:text-[#B8860B]/70"
                 />
               </div>
             </div>
           </div>
 
-          {/* Login Submit Button: Lighter Soft Gold with Crisp White Text */}
-          <div className="pt-2">
+          {/* Login Submit Button */}
+          <div className="pt-1">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 px-4 rounded-lg bg-[#E5A93C] hover:bg-[#D4982B] text-white font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer disabled:opacity-50 border border-[#D4982B]/40 tracking-wide"
+              className="w-full py-2 sm:py-2.5 px-4 rounded-lg bg-[#E5A93C] hover:bg-[#D4982B] text-white font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer disabled:opacity-50 border border-[#D4982B]/40 tracking-wide"
             >
               {isLoading ? "Verifying..." : "Login"}
             </button>
           </div>
 
           {/* Footer link: Forgot Password only */}
-          <div className="flex items-center justify-center pt-1 text-xs">
+          <div className="flex items-center justify-center pt-0.5 text-xs">
             <button
               type="button"
               onClick={() => setShowForgotModal(true)}

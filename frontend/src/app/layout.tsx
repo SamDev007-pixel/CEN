@@ -73,7 +73,7 @@ export default function RootLayout({
           <PwaProvider>
             <Navbar />
             <AuthGuard>
-              <main className="flex-1 pb-16">{children}</main>
+              <main className="flex-1">{children}</main>
               <Footer />
             </AuthGuard>
           </PwaProvider>
