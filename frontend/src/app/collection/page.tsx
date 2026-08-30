@@ -96,13 +96,13 @@ export default function CollectionPage() {
               Scraper Adapter Telemetry
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {sources.map((source) => (
+              {sources.map((source, idx) => (
                 <div
                   key={source.source_name}
-                  className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-3"
+                  className={`app-card-blue-${(idx % 3) + 1} rounded-xl p-5 shadow-sm space-y-3 transition-transform hover:-translate-y-0.5`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold app-text-primary">
+                    <span className="text-sm font-bold text-[#1E2A44]">
                       {source.source_name.replace("_", " ").toUpperCase()}
                     </span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getStatusBadge(source.health.status)}`}>
@@ -112,18 +112,18 @@ export default function CollectionPage() {
 
                   <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-1">
                     <div>
-                      <span className="text-[10px] app-text-muted block">Query Latency</span>
-                      <span className="font-bold text-[var(--color-gold)]">
+                      <span className="text-[10px] text-[#7D8CA3] block">Query Latency</span>
+                      <span className="font-bold text-[#1E2A44]">
                         {source.health.last_response_time_ms ? `${source.health.last_response_time_ms} ms` : "Instant (Live)"}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[10px] app-text-muted block">Total Quotes Harvested</span>
-                      <span className="font-bold app-text-primary">{source.health.total_quotes_collected}</span>
+                      <span className="text-[10px] text-[#7D8CA3] block">Total Quotes Harvested</span>
+                      <span className="font-bold text-[#111827]">{source.health.total_quotes_collected}</span>
                     </div>
                   </div>
 
-                  <p className="text-[11px] app-text-secondary pt-2 border-t app-border-subtle leading-relaxed">
+                  <p className="text-[11px] text-[#7D8CA3] pt-2 border-t border-[#CBDCEE] leading-relaxed">
                     Priority #{source.priority} • User-Agent: AirIndexIndiaBot/1.0
                   </p>
                 </div>
@@ -142,7 +142,7 @@ export default function CollectionPage() {
                   onClick={() => setStatusFilter("ALL")}
                   className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
                     statusFilter === "ALL"
-                      ? "bg-[var(--color-gold)] text-white shadow-sm font-semibold"
+                      ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
                       : "app-bg-surface app-text-secondary hover:app-text-primary"
                   }`}
                 >
@@ -152,7 +152,7 @@ export default function CollectionPage() {
                   onClick={() => setStatusFilter("SUCCESS")}
                   className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
                     statusFilter === "SUCCESS"
-                      ? "bg-[var(--color-gold)] text-white shadow-sm font-semibold"
+                      ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
                       : "app-bg-surface app-text-secondary hover:app-text-primary"
                   }`}
                 >
@@ -162,7 +162,7 @@ export default function CollectionPage() {
                   onClick={() => setStatusFilter("FAILED")}
                   className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
                     statusFilter === "FAILED"
-                      ? "bg-[var(--color-gold)] text-white shadow-sm font-semibold"
+                      ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
                       : "app-bg-surface app-text-secondary hover:app-text-primary"
                   }`}
                 >

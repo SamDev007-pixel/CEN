@@ -2,81 +2,64 @@
 
 @layer base {
   :root {
-    /* ─── Light Mode Theme (Curated Palette) ─── */
+    /* ─── Executive Light Theme with Slate & Navy Blue Shades ─── */
+    /* Color 1: #111827 (Deep Midnight Navy Typography & Heavy Accents) */
+    /* Color 2: #1E2A44 (Executive Navy Action Buttons, Headers, Navigation) */
+    /* Color 3: #2E4A6B (Steel Blue Accents, Chart Curves, Active Badges) */
+    /* Color 4: #7D8CA3 (Soft Slate Gray-Blue Secondary Metadata & Borders) */
+    /* Color 5: #F5F3EC (Linen Cream Button Text & Contrast Accents) */
+
     --font-sans: var(--font-noto-sans), 'Noto Sans', system-ui, sans-serif;
     --font-mono: var(--font-numbers), 'Outfit', var(--font-noto-sans), sans-serif;
     --font-brand: var(--font-noto-sans), 'Noto Sans', system-ui, sans-serif;
 
-    /* Backgrounds & Surfaces */
-    --bg-primary: #F8FAFC;
-    --bg-surface: #FFFFFF;
-    --bg-card: #FFFFFF;
-    --bg-card-hover: #F1F5F9;
-    --border-color: #E2E8F0;
-    --border-subtle: #EBEFF5;
+    /* Backgrounds & Surfaces: Refined Multi-Tone Light Blue Palette */
+    --bg-primary: #F0F4F9;          /* Airy Soft Light Canvas */
+    --bg-surface: #FFFFFF;          /* Elevated Header / Main Surface */
+    --bg-card: #F8FAFD;             /* Subtle Blue-Slate Tinted Card Surface */
+    --bg-card-hover: #EEF4FA;       /* Soft Blue Hover */
+    --border-color: #CBDCEE;        /* Clean Steel-Blue Border */
+    --border-subtle: #E2ECF7;       /* Soft Blue Divider */
 
     /* Scrollbar Tokens */
-    --scrollbar-track: #F1F5F9;
+    --scrollbar-track: #F8FAFC;
     --scrollbar-thumb: #CBD5E1;
-    --scrollbar-thumb-hover: #94A3B8;
+    --scrollbar-thumb-hover: #7D8CA3;
 
-    /* Text Palette: Exact Image Specifications */
-    --text-primary: #2C221E;        /* deep cocoa — 13.5:1 pass */
-    --text-secondary: #475569;      /* slate-600 */
-    --text-muted: #64748B;          /* slate-500 */
-    --text-heading: #C47D7E;        /* dusty rose — 2.9:1 large text */
-    --text-accent-gold: #C89B54;    /* champagne — 2.3:1 decorative */
-    --text-accent-teal: #84B5AF;    /* powder teal — 1.8:1 decorative */
+    /* Text Palette: Deep Navy & Slate for Ultra-Crisp Legibility on White */
+    --text-primary: #111827;        /* Color 1: Deep Midnight Navy (16:1 AAA Contrast) */
+    --text-secondary: #1E2A44;      /* Color 2: Executive Navy (11:1 AAA Contrast) */
+    --text-muted: #7D8CA3;          /* Color 4: Soft Slate Gray-Blue */
+    --text-heading: #111827;        /* Color 1: Deep Midnight Heading */
+    --text-accent-gold: #C29244;    /* Warm Gold Accent */
+    --text-accent-teal: #15803D;    /* Emerald Green for Positive Metrics */
 
-    /* Palette Accents (Zero Orange) */
-    --color-gold: #C29244;          /* Warm Champagne Gold */
+    /* Blue Shades Palette Accents (from provided swatches) */
+    --color-navy: #1E2A44;          /* Color 2: Executive Navy */
+    --color-navy-bg: #EAEFF7;
+    --color-navy-border: #CBD7E6;
+
+    --color-steel: #2E4A6B;         /* Color 3: Steel Blue */
+    --color-steel-bg: #EEF4FA;
+    --color-steel-border: #C2D6EC;
+
+    --color-slate: #7D8CA3;         /* Color 4: Soft Slate */
+    --color-slate-bg: #F1F4F8;
+    --color-slate-border: #D1D9E4;
+
+    --color-cream: #F5F3EC;         /* Color 5: Warm Ivory Cream for buttons/contrast */
+
+    --color-gold: #C29244;          /* Gold */
     --color-gold-bg: #FAF3E6;
     --color-gold-border: #E0BF85;
 
-    --color-rose: #C47D7E;          /* Dusty Rose */
-    --color-rose-bg: #FDF4F4;
-    --color-rose-border: #F7DCDC;
+    --color-rose: #DC2626;          /* Red */
+    --color-rose-bg: #FEF2F2;
+    --color-rose-border: #FECACA;
 
-    --color-teal: #84B5AF;          /* Powder Teal */
-    --color-teal-bg: #F0FDFB;
-    --color-teal-border: #CCFBF1;
-  }
-
-  html.dark,
-  :root.dark {
-    /* ─── Dark Mode Theme (Curated Palette) ─── */
-    --bg-primary: #0B0F19;
-    --bg-surface: #111827;
-    --bg-card: #161E2E;
-    --bg-card-hover: #1E293B;
-    --border-color: #2D3748;
-    --border-subtle: rgba(255, 255, 255, 0.08);
-
-    /* Scrollbar Tokens */
-    --scrollbar-track: #111827;
-    --scrollbar-thumb: #2D3748;
-    --scrollbar-thumb-hover: #4B5563;
-
-    /* Text Palette: Exact Image Specifications */
-    --text-primary: #F8FAFC;        /* clean cloud white */
-    --text-secondary: #CBD5E1;      /* slate-300 */
-    --text-muted: #94A3B8;          /* slate-400 */
-    --text-heading: #E5989B;        /* rose — 7.6:1 pass for text */
-    --text-accent-gold: #D8A852;    /* warm balanced gold */
-    --text-accent-teal: #7EBFB7;    /* teal — pass for text */
-
-    /* Palette Accents (Zero Orange) */
-    --color-gold: #D8A852;          /* Balanced Warm Gold */
-    --color-gold-bg: rgba(216, 168, 82, 0.15);
-    --color-gold-border: rgba(216, 168, 82, 0.38);
-
-    --color-rose: #E5989B;          /* Soft Rose */
-    --color-rose-bg: rgba(229, 152, 155, 0.14);
-    --color-rose-border: rgba(229, 152, 155, 0.35);
-
-    --color-teal: #7EBFB7;          /* Soft Teal */
-    --color-teal-bg: rgba(126, 191, 183, 0.14);
-    --color-teal-border: rgba(126, 191, 183, 0.35);
+    --color-teal: #16A34A;          /* Green */
+    --color-teal-bg: #F0FDF4;
+    --color-teal-border: #BBF7D0;
   }
 }
 
@@ -94,7 +77,6 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  transition: background-color 0.25s ease, color 0.25s ease;
   min-height: 100vh;
   position: relative;
 }
@@ -105,59 +87,43 @@ main {
   overflow-x: hidden;
 }
 
-/* ─── Responsive Aircraft Cabin Backgrounds with Themed Shadow Screens ─── */
+/* ─── Responsive Clean Light Background Overlays ─── */
 
-/* 1. Desktop & Tablet UI (Landscape Cabin Backdrop) */
+/* 1. Desktop & Tablet UI (Airplane Wing at Dusk Over Clouds Backdrop) */
 @media (min-width: 640px) {
-  /* Dark Mode: Deep Dark Shadow Screen Overlay */
-  html.dark body,
-  :root.dark body {
+  body {
     background-image: 
-      linear-gradient(rgba(0, 0, 0, 0.88), rgba(11, 15, 25, 0.94)),
-      url('/desktop_cabin_bg.jpg');
+      linear-gradient(rgba(240, 244, 250, 0.82), rgba(240, 244, 250, 0.88)),
+      url('/desktop_runway_bg.jpg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
     background-attachment: fixed;
   }
 
-  /* Light Mode: White Shadow Screen Overlay */
-  html:not(.dark) body,
-  :root:not(.dark) body {
+  body:has(.login-page-container) {
     background-image: 
-      linear-gradient(rgba(255, 255, 255, 0.93), rgba(255, 255, 255, 0.96)),
-      url('/desktop_cabin_bg.jpg');
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+      linear-gradient(rgba(240, 244, 250, 0.72), rgba(240, 244, 250, 0.84)),
+      url('/desktop_runway_bg.jpg');
   }
 }
 
 /* 2. Mobile UI (Portrait Cabin Backdrop) */
 @media (max-width: 639px) {
-  /* Dark Mode: Deep Dark Shadow Screen Overlay */
-  html.dark body,
-  :root.dark body {
+  body {
     background-image: 
-      linear-gradient(rgba(0, 0, 0, 0.88), rgba(11, 15, 25, 0.94)),
-      url('/mobile_dark_cabin_bg.png');
+      linear-gradient(rgba(240, 244, 250, 0.85), rgba(240, 244, 250, 0.90)),
+      url('/desktop_runway_bg.jpg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
     background-attachment: fixed;
   }
 
-  /* Light Mode: White Shadow Screen Overlay */
-  html:not(.dark) body,
-  :root:not(.dark) body {
+  body:has(.login-page-container) {
     background-image: 
-      linear-gradient(rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.97)),
-      url('/mobile_dark_cabin_bg.png');
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+      linear-gradient(rgba(240, 244, 250, 0.75), rgba(240, 244, 250, 0.86)),
+      url('/desktop_runway_bg.jpg');
   }
 }
 
@@ -235,6 +201,27 @@ main {
 .app-border { border-color: var(--border-color); }
 .app-border-subtle { border-color: var(--border-subtle); }
 
+/* Multi-Tone Blue Container Shades */
+.app-card-blue-1 {
+  background: linear-gradient(145deg, #FFFFFF 0%, #F0F6FC 100%);
+  border: 1px solid #CBDCEE;
+}
+
+.app-card-blue-2 {
+  background: linear-gradient(145deg, #FFFFFF 0%, #EBF3FB 100%);
+  border: 1px solid #C0D6EC;
+}
+
+.app-card-blue-3 {
+  background: linear-gradient(145deg, #FFFFFF 0%, #E5EFF9 100%);
+  border: 1px solid #B5CFEB;
+}
+
+.app-card-blue-4 {
+  background: linear-gradient(145deg, #FFFFFF 0%, #F4F8FC 100%);
+  border: 1px solid #D1DFEE;
+}
+
 /* ─── Global Clean Table Row Dividers (No Harsh Black or White Lines) ─── */
 table tbody > tr {
   border-bottom: 1px solid var(--border-subtle) !important;
@@ -256,9 +243,30 @@ tbody.divide-y > tr ~ tr,
 .app-text-secondary { color: var(--text-secondary); }
 .app-text-muted { color: var(--text-muted); }
 .app-text-heading { color: var(--text-heading); }
+.app-text-navy { color: var(--color-navy); }
+.app-text-steel { color: var(--color-steel); }
+.app-text-slate { color: var(--color-slate); }
 .app-text-gold { color: var(--text-accent-gold); }
 .app-text-rose { color: var(--color-rose); }
 .app-text-teal { color: var(--text-accent-teal); }
+
+.app-badge-navy {
+  background-color: var(--color-navy-bg);
+  color: var(--color-navy);
+  border: 1px solid var(--color-navy-border);
+}
+
+.app-badge-steel {
+  background-color: var(--color-steel-bg);
+  color: var(--color-steel);
+  border: 1px solid var(--color-steel-border);
+}
+
+.app-badge-slate {
+  background-color: var(--color-slate-bg);
+  color: var(--color-slate);
+  border: 1px solid var(--color-slate-border);
+}
 
 .app-badge-rose {
   background-color: var(--color-rose-bg);
@@ -287,3 +295,100 @@ nextjs-portal,
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+/* Google Translate Top Banner & Iframes Permanently Hidden */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame,
+iframe.skiptranslate,
+iframe[id^=":"],
+iframe[id*="container"],
+iframe[src*="translate.google.com"],
+body > .skiptranslate,
+body > iframe.skiptranslate,
+.goog-te-menu-frame,
+.goog-te-menu2,
+.goog-te-menu-value,
+.goog-te-gadget-simple,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.VIpgJd-ZVi9od-ORHb-Oxf5Fd,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-ZVi9od-l4eHX-hSRGPd {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 0px !important;
+  width: 0px !important;
+  max-height: 0px !important;
+  max-width: 0px !important;
+  border: none !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  z-index: -9999 !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+  min-height: 100vh !important;
+}
+
+html {
+  height: 100% !important;
+}
+
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+#google_translate_element {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+}
+
+/* -------------------------------------------------------------
+   Hindi & Devanagari Typography Enhancements
+   Ensures complex glyphs, matras, and translated labels
+   render clearly with optimal size, spacing, and line height.
+------------------------------------------------------------- */
+:lang(hi),
+[lang="hi"],
+.translated-ltr,
+.translated-rtl {
+  font-family: var(--font-noto-sans), system-ui, -apple-system, sans-serif !important;
+}
+
+/* Ensure Google Translate font wrappers have natural line-height */
+font {
+  line-height: inherit;
+}
+
+/* Elevate small text utility classes for Hindi legibility */
+.text-\[9px\] {
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+}
+
+.text-\[10px\] {
+  font-size: 11.5px !important;
+  line-height: 1.4 !important;
+}
+
+.text-\[11px\],
+.text-\[11\.5px\] {
+  font-size: 12.5px !important;
+  line-height: 1.45 !important;
+}
+
+.text-xs {
+  font-size: 12.5px !important;
+  line-height: 1.5 !important;
+}
+

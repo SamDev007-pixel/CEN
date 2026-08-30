@@ -4,7 +4,7 @@ An automated high-frequency data collection, cleaning, outlier filtering, statis
 
 > [!NOTE]
 > This system is an **NSO/MoSPI-oriented prototype** developed for the Smart India Hackathon (SIH) airfare index problem statement.
-> Official DGCA validation is currently marked as **PENDING** until certified monthly DGCA route passenger yield datasets are ingested.
+> **Data Attribution**: Route weighting data sourced from DGCA (Directorate General of Civil Aviation) via the `india-aviation-traffic` open dataset (ODbL license), aggregated from official Monthly Statistics (Domestic Air Transport) reports.
 
 ---
 

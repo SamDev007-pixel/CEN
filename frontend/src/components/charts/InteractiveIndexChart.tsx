@@ -17,7 +17,7 @@ interface InteractiveIndexChartProps {
   height?: number;
   showReference?: boolean;
   baseLineValue?: number;
-  accentColor?: "rose" | "gold" | "teal";
+  accentColor?: "steel" | "navy" | "rose" | "gold" | "teal";
 }
 
 export default function InteractiveIndexChart({
@@ -27,7 +27,7 @@ export default function InteractiveIndexChart({
   valueSuffix = "",
   height = 300,
   baseLineValue = 100,
-  accentColor = "gold"
+  accentColor = "steel"
 }: InteractiveIndexChartProps) {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
@@ -86,11 +86,15 @@ export default function InteractiveIndexChart({
   const points = data.map((d, i) => `${getX(i)},${getY(d.value)}`).join(" ");
 
   const colorHex =
-    accentColor === "rose"
+    accentColor === "steel"
+      ? "#2E4A6B"
+      : accentColor === "navy"
+      ? "#1E2A44"
+      : accentColor === "rose"
       ? "var(--color-rose)"
       : accentColor === "teal"
       ? "var(--color-teal)"
-      : "var(--color-gold)";
+      : "#C29244";
 
   // Format label for display
   const formatLabel = (raw: string, index: number) => {

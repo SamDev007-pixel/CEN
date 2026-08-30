@@ -128,50 +128,50 @@ export default function AirlinesPage() {
         <EmptyState title="No Carrier Data Found" description="Run collection to aggregate quotes." />
       ) : (
         <div className="space-y-8">
-          {/* Top High-Level Metrics */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="app-bg-card border app-border rounded-xl p-4 shadow-sm">
-              <span className="text-[11px] font-semibold app-text-secondary uppercase tracking-wider block">
+          {/* Metrics Overview */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="app-card-blue-1 rounded-xl p-4 shadow-sm transition-transform hover:-translate-y-0.5">
+              <span className="text-[11px] font-semibold text-[#1E2A44] uppercase tracking-wider block">
                 Total Sampled Quotes
               </span>
-              <div className="text-xl sm:text-2xl font-semibold font-mono app-text-primary mt-1">
+              <div className="text-xl sm:text-2xl font-bold font-mono text-[#111827] mt-1">
                 {totalQuotesAll.toLocaleString()}
               </div>
-              <span className="text-[10px] app-text-muted mt-0.5 block">Across 6 monitored corridors</span>
+              <span className="text-[10px] text-[#7D8CA3] mt-0.5 block">Across 6 monitored corridors</span>
             </div>
 
-            <div className="app-bg-card border app-border rounded-xl p-4 shadow-sm">
-              <span className="text-[11px] font-semibold app-text-secondary uppercase tracking-wider block">
+            <div className="app-card-blue-2 rounded-xl p-4 shadow-sm transition-transform hover:-translate-y-0.5">
+              <span className="text-[11px] font-semibold text-[#1E2A44] uppercase tracking-wider block">
                 Active Carriers
               </span>
-              <div className="text-xl sm:text-2xl font-semibold font-mono text-[var(--color-teal)] mt-1">
+              <div className="text-xl sm:text-2xl font-bold font-mono text-[#15803D] mt-1">
                 {sortedAirlines.length} Airlines
               </div>
-              <span className="text-[10px] app-text-muted mt-0.5 block">Domestic & scheduled</span>
+              <span className="text-[10px] text-[#7D8CA3] mt-0.5 block">Domestic & scheduled</span>
             </div>
 
-            <div className="app-bg-card border app-border rounded-xl p-4 shadow-sm">
-              <span className="text-[11px] font-semibold app-text-secondary uppercase tracking-wider block">
+            <div className="app-card-blue-3 rounded-xl p-4 shadow-sm transition-transform hover:-translate-y-0.5">
+              <span className="text-[11px] font-semibold text-[#1E2A44] uppercase tracking-wider block">
                 Market Leader Share
               </span>
-              <div className="text-xl sm:text-2xl font-semibold font-mono text-[var(--color-gold)] mt-1">
+              <div className="text-xl sm:text-2xl font-bold font-mono text-[#1E2A44] mt-1">
                 {sortedAirlines.length > 0
                   ? `${((sortedAirlines[0][1].totalQuotes / totalQuotesAll) * 100).toFixed(1)}%`
                   : "0%"}
               </div>
-              <span className="text-[10px] app-text-muted mt-0.5 block truncate">
+              <span className="text-[10px] text-[#7D8CA3] mt-0.5 block truncate">
                 {sortedAirlines[0]?.[0] || "None"}
               </span>
             </div>
 
-            <div className="app-bg-card border app-border rounded-xl p-4 shadow-sm">
-              <span className="text-[11px] font-semibold app-text-secondary uppercase tracking-wider block">
+            <div className="app-card-blue-4 rounded-xl p-4 shadow-sm transition-transform hover:-translate-y-0.5">
+              <span className="text-[11px] font-semibold text-[#1E2A44] uppercase tracking-wider block">
                 Weighted Industry Mean
               </span>
-              <div className="text-xl sm:text-2xl font-semibold font-mono app-text-primary mt-1">
+              <div className="text-xl sm:text-2xl font-bold font-mono text-[#111827] mt-1">
                 ₹{Math.round(overallAvgPrice).toLocaleString()}
               </div>
-              <span className="text-[10px] app-text-muted mt-0.5 block">Aggregate baseline fare</span>
+              <span className="text-[10px] text-[#7D8CA3] mt-0.5 block">Aggregate baseline fare</span>
             </div>
           </div>
 

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models.db_models import ValidationResult, ReferenceData
 from app.processing.backtest_engine import BacktestEngine
+from app.api.cache import api_cache
 
 router = APIRouter(prefix="/validation", tags=["Historical Validation & Backtesting"])
 
@@ -21,6 +22,11 @@ def get_historical_backtest(
     GET /validation/backtest: Runs and returns deterministic historical backtest reconstruction
     with sensitivity comparisons and base period metadata.
     """
+    cache_key = f"val_backtest_{start_date}_{end_date}_{method}_{reference_source}"
+    cached = api_cache.get(cache_key)
+    if cached:
+        return cached
+
     try:
         s_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
         e_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
@@ -36,6 +42,7 @@ def get_historical_backtest(
         method=method,
         save_results=False
     )
+    api_cache.set(cache_key, result, ttl_sec=30)
     return result
 
 
@@ -85,6 +92,11 @@ def get_validation_coverage(
     """
     GET /validation/coverage: Returns separate metrics for Route Coverage and Observation Coverage.
     """
+    cache_key = f"val_coverage_{start_date}_{end_date}"
+    cached = api_cache.get(cache_key)
+    if cached:
+        return cached
+
     try:
         s_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
         e_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
@@ -106,7 +118,7 @@ def get_validation_coverage(
     total_obs = sum(d["total_observations_count"] for d in daily_series)
     observed_obs = sum(d["observed_count"] for d in daily_series)
 
-    return {
+    res = {
         "period": {"start_date": start_date, "end_date": end_date, "days": len(daily_series)},
         "summary": {
             "total_observations": total_obs,
@@ -127,6 +139,8 @@ def get_validation_coverage(
             for d in daily_series
         ]
     }
+    api_cache.set(cache_key, res, ttl_sec=30)
+    return res
 
 
 @router.get("/routes")

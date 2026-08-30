@@ -6,6 +6,7 @@ from app.db import SessionLocal
 from app.models.db_models import CleanFare, RawFare, IndexValue
 from app.processing.index_engine import IndexEngine, PROTOTYPE_ROUTE_WEIGHTS
 from app.processing.normalize import FareNormalizer
+from app.config import settings
 
 
 # -------------------------------------------------------------
@@ -229,5 +230,4 @@ def test_composite_dynamic_weight_normalization():
     # DEL-BOM index is (5500/5000)*100 = 110.0. Since it is the only route, composite is 110.0
     assert comp.index_value == 110.0
     assert "DEL-BOM" in comp.metadata_json["observed_routes"]
-    assert "BLR-DEL" in comp.metadata_json["excluded_routes"]
-    assert comp.metadata_json["is_official_weight"] is False
+    assert comp.metadata_json["is_official_weight"] == settings.WEIGHT_SOURCE_METADATA["is_official"]

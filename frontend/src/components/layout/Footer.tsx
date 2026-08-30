@@ -1,12 +1,16 @@
 "use client";
 
-import { useTheme } from "@/context/ThemeContext";
+import { useEffect, useState } from "react";
 import { ExternalLink } from "lucide-react";
+import { getApiBaseUrl } from "@/lib/api";
 
 export default function Footer() {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-  const iconColor = isDark ? "#F8FAFC" : "#0F172A"; // Ultra-crisp solid slate-900 in light mode, slate-50 in dark mode
+  const iconColor = "#1E2A44"; // Executive Navy in Light Theme
+  const [apiBase, setApiBase] = useState<string>("http://localhost:8000");
+
+  useEffect(() => {
+    setApiBase(getApiBaseUrl());
+  }, []);
 
   return (
     <footer className="w-full app-bg-surface border-t app-border transition-colors duration-200 mt-auto overflow-hidden">
@@ -54,18 +58,32 @@ export default function Footer() {
                 href="https://x.com/GoIStats?s=08"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Official MoSPI X (formerly Twitter)"
+                aria-label="Official MoSPI X"
                 className="hover:scale-115 transition-all flex items-center justify-center"
                 style={{ color: iconColor }}
               >
-                <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill={iconColor} viewBox="0 0 24 24">
+                <svg className="w-4.5 h-4.5 sm:w-5 sm:h-5" fill={iconColor} viewBox="0 0 24 24">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
+
+              {/* YouTube */}
+              <a
+                href="https://www.youtube.com/channel/UCS5_qdc_flpyStB3ngvvgZw"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Official MoSPI YouTube"
+                className="hover:scale-115 transition-all flex items-center justify-center"
+                style={{ color: iconColor }}
+              >
+                <svg className="w-4.5 h-4.5 sm:w-5 sm:h-5" fill={iconColor} viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                 </svg>
               </a>
 
               {/* LinkedIn */}
               <a
-                href="https://www.linkedin.com/company/ministry-of-statistics-programme-implementation/"
+                href="https://www.linkedin.com/company/ministry-of-statistics-and-programme-implementation"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Official MoSPI LinkedIn"
@@ -82,7 +100,7 @@ export default function Footer() {
           {/* Quick Action Pill Buttons */}
           <div className="flex items-center justify-center sm:justify-end gap-2.5 w-full sm:w-auto max-w-sm sm:max-w-none">
             <a
-              href={`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000"}/docs`}
+              href={`${apiBase}/docs`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg app-bg-card hover:app-bg-card-hover border app-border text-xs font-medium app-text-primary transition-all shadow-sm flex-1 sm:flex-initial"
@@ -91,7 +109,7 @@ export default function Footer() {
               <ExternalLink className="w-3 h-3 app-text-muted flex-shrink-0" />
             </a>
             <a
-              href={`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000"}/export?format=json`}
+              href={`${apiBase}/export?format=json`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg app-bg-card hover:app-bg-card-hover border app-border text-xs font-medium app-text-primary transition-all shadow-sm flex-1 sm:flex-initial"
@@ -204,9 +222,12 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Copyright Bar */}
-        <div className="flex items-center justify-center text-xs text-center w-full pt-0.5 pb-1">
-          <p className="app-text-muted text-center w-full flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 leading-relaxed">
+        {/* Data Attribution & Copyright Bar */}
+        <div className="flex flex-col items-center justify-center text-xs text-center w-full pt-1 pb-1 space-y-1">
+          <p className="text-[10px] sm:text-[11px] app-text-muted max-w-4xl text-center leading-relaxed">
+            Route weighting data sourced from <strong className="app-text-primary font-medium">DGCA (Directorate General of Civil Aviation)</strong> via the india-aviation-traffic open dataset (ODbL license), aggregated from official Monthly Statistics (Domestic Air Transport) reports.
+          </p>
+          <p className="app-text-muted text-center w-full flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 leading-relaxed pt-0.5">
             <span>
               © 2026 <strong className="app-text-primary font-semibold">Government of India</strong>
             </span>

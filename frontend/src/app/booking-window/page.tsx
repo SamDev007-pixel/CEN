@@ -8,6 +8,7 @@ import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
 import InteractiveIndexChart from "@/components/charts/InteractiveIndexChart";
+import RouteHorizonHeatmap from "@/components/charts/RouteHorizonHeatmap";
 
 const CONFIGURED_ROUTES = [
   "DEL-BOM",
@@ -137,32 +138,32 @@ export default function BookingWindowPage() {
         <>
           {/* Key Horizon Insights */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-2">
-              <div className="text-xs font-semibold app-text-secondary uppercase">Cheapest Advance Horizon</div>
-              <div className="text-2xl font-semibold text-[var(--color-teal)] font-mono">
+            <div className="app-card-blue-1 rounded-xl p-5 shadow-sm space-y-2 transition-transform hover:-translate-y-0.5">
+              <div className="text-xs font-semibold text-[#1E2A44] uppercase">Cheapest Advance Horizon</div>
+              <div className="text-2xl font-bold text-[#15803D] font-mono">
                 T+{minHorizon?.horizon_days} Days
               </div>
-              <p className="text-[11px] app-text-muted">
-                Avg price: <strong>₹{minHorizon?.avg_price ? Math.round(minHorizon.avg_price).toLocaleString() : "N/A"}</strong>
+              <p className="text-[11px] text-[#7D8CA3]">
+                Avg price: <strong className="text-[#1E2A44]">₹{minHorizon?.avg_price ? Math.round(minHorizon.avg_price).toLocaleString() : "N/A"}</strong>
               </p>
             </div>
 
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-2">
-              <div className="text-xs font-semibold app-text-secondary uppercase">Peak Dynamic Pricing Horizon</div>
-              <div className="text-2xl font-semibold text-[var(--color-rose)] font-mono">
+            <div className="app-card-blue-2 rounded-xl p-5 shadow-sm space-y-2 transition-transform hover:-translate-y-0.5">
+              <div className="text-xs font-semibold text-[#1E2A44] uppercase">Peak Dynamic Pricing Horizon</div>
+              <div className="text-2xl font-bold text-[#DC2626] font-mono">
                 T+{maxHorizon?.horizon_days} Days
               </div>
-              <p className="text-[11px] app-text-muted">
-                Avg price: <strong>₹{maxHorizon?.avg_price ? Math.round(maxHorizon.avg_price).toLocaleString() : "N/A"}</strong>
+              <p className="text-[11px] text-[#7D8CA3]">
+                Avg price: <strong className="text-[#1E2A44]">₹{maxHorizon?.avg_price ? Math.round(maxHorizon.avg_price).toLocaleString() : "N/A"}</strong>
               </p>
             </div>
 
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-2">
-              <div className="text-xs font-semibold app-text-secondary uppercase">Horizon Price Spread</div>
-              <div className="text-2xl font-semibold text-[var(--color-gold)] font-mono">
+            <div className="app-card-blue-3 rounded-xl p-5 shadow-sm space-y-2 transition-transform hover:-translate-y-0.5">
+              <div className="text-xs font-semibold text-[#1E2A44] uppercase">Horizon Price Spread</div>
+              <div className="text-2xl font-bold text-[#1E2A44] font-mono">
                 ₹{minHorizon && maxHorizon ? Math.round(maxHorizon.avg_price - minHorizon.avg_price).toLocaleString() : "0"}
               </div>
-              <p className="text-[11px] app-text-muted">
+              <p className="text-[11px] text-[#7D8CA3]">
                 Last-minute premium observed vs advance purchase
               </p>
             </div>
@@ -182,6 +183,9 @@ export default function BookingWindowPage() {
               accentColor="teal"
             />
           </div>
+
+          {/* Interactive Route x Horizon Heatmap */}
+          <RouteHorizonHeatmap />
 
           {/* Horizon Table Breakdown */}
           <div className="space-y-4">

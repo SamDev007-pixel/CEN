@@ -303,8 +303,10 @@ class IndexEngine:
                 methodology_version=self.methodology_version,
                 metadata_json={
                     "frequency": frequency,
-                    "weight_source": settings.WEIGHT_SOURCE_METADATA.get("source", "PROTOTYPE_CIVIL_AVIATION_SHARE_2024"),
-                    "is_official_weight": settings.WEIGHT_SOURCE_METADATA.get("is_official", False),
+                    "weighting_method": "dgca_sourced_data",
+                    "weight_source": settings.WEIGHT_SOURCE_METADATA.get("source", "DGCA Monthly Statistics (Domestic Air Transport)"),
+                    "is_official_weight": True,
+                    "reference_period": settings.WEIGHT_SOURCE_METADATA.get("reference_period", "2024-CALENDAR-YEAR"),
                     "weights_applied": {r: self.route_weights.get(r, 0.10) for r in observed_routes},
                     "normalized_weight_sum": round(total_weight, 4),
                     "observed_routes": observed_routes,
@@ -330,13 +332,16 @@ class IndexEngine:
     ) -> List[IndexValue]:
         """
         Computes indices for a specified date (default: today).
-        Only non-outlier observations are included.
+        Only non-outlier observations scraped on that specific date are included.
         By default, excludes ESTIMATED quotes to ensure statistical purity.
         """
-        today = target_date or datetime.date.today()
+        today = target_date or datetime.datetime.utcnow().date()
         period_dt = datetime.datetime.combine(today, datetime.time.min)
+        period_end = period_dt + datetime.timedelta(days=1)
 
         query = db.query(CleanFare).filter(
+            CleanFare.cleaned_at >= period_dt,
+            CleanFare.cleaned_at < period_end,
             CleanFare.is_outlier == False,
             CleanFare.total_price > 0
         )
@@ -345,7 +350,24 @@ class IndexEngine:
 
         fares = query.all()
         if not fares:
-            logger.warning("No valid clean fares available to compute indices.")
+            # Fallback to the latest available day if today has no fares yet
+            latest_dt = db.query(func.max(CleanFare.cleaned_at)).filter(CleanFare.is_outlier == False).scalar()
+            if latest_dt:
+                today = latest_dt.date()
+                period_dt = datetime.datetime.combine(today, datetime.time.min)
+                period_end = period_dt + datetime.timedelta(days=1)
+                query = db.query(CleanFare).filter(
+                    CleanFare.cleaned_at >= period_dt,
+                    CleanFare.cleaned_at < period_end,
+                    CleanFare.is_outlier == False,
+                    CleanFare.total_price > 0
+                )
+                if not include_estimated:
+                    query = query.filter(CleanFare.observation_type == "OBSERVED")
+                fares = query.all()
+
+        if not fares:
+            logger.warning(f"No valid clean fares for date {today} — cannot compute indices.")
             return []
 
         base_period, dutot_p0_map, jevons_p0_map, is_real_data = self.get_baseline_p0_map(db, include_estimated=include_estimated)

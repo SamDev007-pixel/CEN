@@ -187,11 +187,11 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      {/* Minimal & Clean PWA Install Banner (Mobile/Tablet only, since Desktop has Navbar install button) */}
+      {/* Minimal & Clean PWA Install Popup (Desktop & Mobile) */}
       {showInstallBanner && isInstallable && !isStandalone && (
-        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-40 bg-slate-900/95 dark:bg-slate-900/95 border border-slate-800/90 backdrop-blur-xl text-white p-2.5 sm:p-3 rounded-xl shadow-xl flex lg:hidden items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-50 app-bg-surface border app-border backdrop-blur-xl app-text-primary p-3 rounded-xl shadow-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-slate-800/90 border border-slate-700/60 p-1 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-lg app-bg-card border app-border p-1 flex items-center justify-center flex-shrink-0">
               <img
                 src="/icon-192x192.png"
                 alt="AirIndex Logo"
@@ -200,11 +200,11 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-white leading-none">AirIndex App</span>
-                <span className="text-[9px] font-semibold text-[var(--color-gold)] leading-none">PWA</span>
+                <span className="text-xs font-bold app-text-primary leading-none">AirIndex App</span>
+                <span className="text-[9px] font-extrabold text-[var(--color-gold)] leading-none">PWA</span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-tight mt-0.5 truncate">
-                Install for offline access & faster loading
+              <p className="text-[11px] app-text-muted leading-tight mt-0.5 truncate">
+                Install for offline access & instant launch
               </p>
             </div>
           </div>
@@ -219,7 +219,7 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
             </button>
             <button
               onClick={dismissInstallBanner}
-              className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
+              className="p-1.5 app-text-muted hover:app-text-primary app-bg-card hover:app-bg-card-hover rounded-md transition-colors cursor-pointer"
               aria-label="Close"
               title="Dismiss"
             >

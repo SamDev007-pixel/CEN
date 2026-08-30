@@ -129,7 +129,7 @@ export default function RouteExplorerPage() {
               onClick={() => setMethod("Dutot")}
               className={`px-3 py-1 rounded-md font-medium transition-all ${
                 method === "Dutot"
-                  ? "bg-[var(--color-gold)] text-white shadow-sm font-semibold"
+                  ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
                   : "app-text-secondary hover:app-text-primary"
               }`}
             >
@@ -139,7 +139,7 @@ export default function RouteExplorerPage() {
               onClick={() => setMethod("Jevons")}
               className={`px-3 py-1 rounded-md font-medium transition-all ${
                 method === "Jevons"
-                  ? "bg-[var(--color-gold)] text-white shadow-sm font-semibold"
+                  ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
                   : "app-text-secondary hover:app-text-primary"
               }`}
             >
@@ -157,36 +157,36 @@ export default function RouteExplorerPage() {
         <>
           {/* Key Pricing Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-2">
-              <div className="text-xs font-semibold app-text-secondary uppercase">Average Observed Fare</div>
-              <div className="text-2xl font-semibold text-[var(--color-gold)] font-mono">
+            <div className="app-card-blue-1 rounded-xl p-5 shadow-sm space-y-2 transition-transform hover:-translate-y-0.5">
+              <div className="text-xs font-semibold text-[#1E2A44] uppercase">Average Observed Fare</div>
+              <div className="text-2xl font-bold text-[#1E2A44] font-mono">
                 ₹{avgPrice.toFixed(0)}
               </div>
-              <p className="text-[11px] app-text-muted">Based on {quotes.length} valid quotes</p>
+              <p className="text-[11px] text-[#7D8CA3]">Based on {quotes.length} valid quotes</p>
             </div>
 
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-2">
-              <div className="text-xs font-semibold app-text-secondary uppercase">Min Observed Fare</div>
-              <div className="text-2xl font-semibold text-[var(--color-teal)] font-mono">
+            <div className="app-card-blue-2 rounded-xl p-5 shadow-sm space-y-2 transition-transform hover:-translate-y-0.5">
+              <div className="text-xs font-semibold text-[#1E2A44] uppercase">Min Observed Fare</div>
+              <div className="text-2xl font-bold text-[#15803D] font-mono">
                 ₹{minPrice.toFixed(0)}
               </div>
-              <p className="text-[11px] app-text-muted">Best available scheduled seat</p>
+              <p className="text-[11px] text-[#7D8CA3]">Best available scheduled seat</p>
             </div>
 
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-2">
-              <div className="text-xs font-semibold app-text-secondary uppercase">Max Observed Fare</div>
-              <div className="text-2xl font-semibold text-[var(--color-rose)] font-mono">
+            <div className="app-card-blue-3 rounded-xl p-5 shadow-sm space-y-2 transition-transform hover:-translate-y-0.5">
+              <div className="text-xs font-semibold text-[#1E2A44] uppercase">Max Observed Fare</div>
+              <div className="text-2xl font-bold text-[#DC2626] font-mono">
                 ₹{maxPrice.toFixed(0)}
               </div>
-              <p className="text-[11px] app-text-muted">Peak departure / last-minute seat</p>
+              <p className="text-[11px] text-[#7D8CA3]">Peak departure / last-minute seat</p>
             </div>
 
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-2">
-              <div className="text-xs font-semibold app-text-secondary uppercase">Air Carriers Active</div>
-              <div className="text-2xl font-semibold app-text-primary font-mono">
+            <div className="app-card-blue-4 rounded-xl p-5 shadow-sm space-y-2 transition-transform hover:-translate-y-0.5">
+              <div className="text-xs font-semibold text-[#1E2A44] uppercase">Air Carriers Active</div>
+              <div className="text-2xl font-bold text-[#111827] font-mono">
                 {Object.keys(airlineCounts).length}
               </div>
-              <p className="text-[11px] app-text-muted">Competing on {selectedRoute}</p>
+              <p className="text-[11px] text-[#7D8CA3]">Competing on {selectedRoute}</p>
             </div>
           </div>
 

@@ -11,12 +11,13 @@ import {
   Info,
   RefreshCw,
 } from "lucide-react";
-import { getLatestIndices } from "@/lib/api";
+import { getLatestIndices, getApiBaseUrl } from "@/lib/api";
 import { IndexRecord, LatestIndexResponse } from "@/types/api";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
 import InteractiveIndexChart from "@/components/charts/InteractiveIndexChart";
+import RouteHorizonHeatmap from "@/components/charts/RouteHorizonHeatmap";
 
 export default function DashboardPage() {
   const [method, setMethod] = useState<string>("Dutot");
@@ -41,15 +42,20 @@ export default function DashboardPage() {
     fetchIndices(method);
   }, [method]);
 
-  // Find Composite Record
+  // Find Composite Record (handles ALL_INDIA_COMPOSITE, COMPOSITE, ALL-INDIA, and null)
   const compositeRecord = indexData?.data?.find(
-    (d) => d.route === "ALL-INDIA" || d.route === "COMPOSITE"
+    (d) => d.route === "ALL_INDIA_COMPOSITE" || d.route === "COMPOSITE" || d.route === "ALL-INDIA" || !d.route
   );
 
   // Extract Route Records and deduplicate by route name to avoid duplicate React key warnings
   const uniqueRouteMap = new Map<string, IndexRecord>();
   (indexData?.data || []).forEach((d) => {
-    if (d.route && d.route !== "ALL-INDIA") {
+    if (
+      d.route &&
+      d.route !== "ALL-INDIA" &&
+      d.route !== "COMPOSITE" &&
+      d.route !== "ALL_INDIA_COMPOSITE"
+    ) {
       if (!uniqueRouteMap.has(d.route)) {
         uniqueRouteMap.set(d.route, d);
       }
@@ -85,7 +91,7 @@ export default function DashboardPage() {
         {/* Action Buttons: Export & Recalculate */}
         <div className="flex items-center gap-2">
           <a
-            href={`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000"}/export/cpi`}
+            href={`${getApiBaseUrl()}/export/cpi`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 app-bg-card hover:app-bg-card-hover border app-border text-xs font-semibold app-text-primary rounded-md transition-colors shadow-sm"
@@ -95,7 +101,7 @@ export default function DashboardPage() {
           </a>
           <button
             onClick={() => fetchIndices(method)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-gold)] text-white text-xs font-semibold rounded-md shadow-sm transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#2E4A6B] hover:bg-[#1E2A44] text-[#F5F3EC] text-xs font-semibold rounded-md shadow-sm transition-colors border border-[#7D8CA3]/50 cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Refresh
@@ -110,9 +116,9 @@ export default function DashboardPage() {
           <div className="inline-flex items-center app-bg-card p-1 rounded-md border app-border">
             <button
               onClick={() => setMethod("Dutot")}
-              className={`px-3 py-1.5 rounded text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              className={`px-3.5 py-1 text-xs font-semibold rounded-md transition-all ${
                 method === "Dutot"
-                  ? "bg-[var(--color-gold)] text-white shadow-sm font-bold"
+                  ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
                   : "app-text-secondary hover:app-text-primary"
               }`}
             >
@@ -120,9 +126,9 @@ export default function DashboardPage() {
             </button>
             <button
               onClick={() => setMethod("Jevons")}
-              className={`px-3 py-1.5 rounded text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              className={`px-3.5 py-1 text-xs font-semibold rounded-md transition-all ${
                 method === "Jevons"
-                  ? "bg-[var(--color-gold)] text-white shadow-sm font-bold"
+                  ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
                   : "app-text-secondary hover:app-text-primary"
               }`}
             >
@@ -152,72 +158,80 @@ export default function DashboardPage() {
         />
       ) : (
         <>
+          {/* Live Baseline Tracking Notice */}
+          <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg border app-border app-bg-surface text-xs app-text-secondary shadow-xs">
+            <Info className="w-4 h-4 text-[var(--color-gold)] flex-shrink-0" />
+            <p className="leading-relaxed">
+              Live data collection began <strong className="app-text-primary font-semibold">{compositeRecord?.base_period || routeIndices[0]?.base_period || "2026-08-28"}</strong>. Index values reflect real-time tracking since this baseline.
+            </p>
+          </div>
+
           {/* Main KPI Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* National Composite Index Card */}
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-2">
-              <div className="flex items-center justify-between app-text-secondary text-xs font-semibold uppercase tracking-wider">
+            <div className="app-card-blue-1 rounded-xl p-5 shadow-sm space-y-2 transition-transform hover:-translate-y-0.5">
+              <div className="flex items-center justify-between text-[#1E2A44] text-xs font-semibold uppercase tracking-wider">
                 <span>National Composite Index</span>
-                <Layers className="w-4 h-4 text-[var(--color-gold)]" />
+                <Layers className="w-4 h-4 text-[#1E2A44]" />
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-semibold text-[var(--color-gold)] tracking-tight font-mono">
+                <span className="text-3xl font-bold text-[#1E2A44] tracking-tight font-mono">
                   {compositeRecord?.index_value?.toFixed(2) || "100.00"}
                 </span>
-                <span className="text-xs font-mono app-text-secondary">pts</span>
+                <span className="text-xs font-mono text-[#7D8CA3]">pts</span>
               </div>
-              <p className="text-[11px] app-text-muted">
+              <p className="text-[11px] text-[#7D8CA3]">
                 Weighted composite relative across all monitored Indian air routes
               </p>
             </div>
 
             {/* Total Sample Quotes */}
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-2">
-              <div className="flex items-center justify-between app-text-secondary text-xs font-semibold uppercase tracking-wider">
+            <div className="app-card-blue-2 rounded-xl p-5 shadow-sm space-y-2 transition-transform hover:-translate-y-0.5">
+              <div className="flex items-center justify-between text-[#1E2A44] text-xs font-semibold uppercase tracking-wider">
                 <span>Total Sample Density</span>
-                <span className="w-2 h-2 rounded-full bg-[var(--color-teal)]"></span>
+                <span className="w-2 h-2 rounded-full bg-[#2E4A6B]"></span>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-semibold app-text-primary tracking-tight font-mono">
+                <span className="text-3xl font-bold text-[#111827] tracking-tight font-mono">
                   {compositeRecord?.sample_size?.toLocaleString() || "1,248"}
                 </span>
-                <span className="text-xs font-mono app-text-muted">quotes</span>
+                <span className="text-xs font-mono text-[#7D8CA3]">quotes</span>
               </div>
-              <p className="text-[11px] app-text-muted">
+              <p className="text-[11px] text-[#7D8CA3]">
                 Directly harvested live flight price observations
               </p>
             </div>
 
             {/* Direct Observation Coverage */}
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-2">
-              <div className="flex items-center justify-between app-text-secondary text-xs font-semibold uppercase tracking-wider">
+            <div className="app-card-blue-3 rounded-xl p-5 shadow-sm space-y-2 transition-transform hover:-translate-y-0.5">
+              <div className="flex items-center justify-between text-[#1E2A44] text-xs font-semibold uppercase tracking-wider">
                 <span>Observation Coverage</span>
-                <span className="text-xs text-[var(--color-teal)] font-bold">Tier 1</span>
+                <span className="text-xs text-[#15803D] font-bold px-1.5 py-0.5 rounded bg-emerald-100/80">Tier 1</span>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-semibold text-[var(--color-teal)] tracking-tight font-mono">
+                <span className="text-3xl font-bold text-[#15803D] tracking-tight font-mono">
                   {compositeRecord?.coverage_percent?.toFixed(1) || "100.0"}%
                 </span>
-                <span className="text-xs font-mono app-text-muted">observed</span>
+                <span className="text-xs font-mono text-[#7D8CA3]">observed</span>
               </div>
-              <p className="text-[11px] app-text-muted">
+              <p className="text-[11px] text-[#7D8CA3]">
                 Zero synthetic data • 100% verified fare quotes
               </p>
             </div>
 
             {/* Monitored Routes Count */}
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-2">
-              <div className="flex items-center justify-between app-text-secondary text-xs font-semibold uppercase tracking-wider">
+            <div className="app-card-blue-4 rounded-xl p-5 shadow-sm space-y-2 transition-transform hover:-translate-y-0.5">
+              <div className="flex items-center justify-between text-[#1E2A44] text-xs font-semibold uppercase tracking-wider">
                 <span>Corridor Coverage</span>
-                <span className="text-xs text-[var(--color-gold)] font-mono font-bold">6/6</span>
+                <span className="text-xs text-[#1E2A44] font-mono font-bold">6/6</span>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-semibold app-text-primary tracking-tight font-mono">
+                <span className="text-3xl font-bold text-[#111827] tracking-tight font-mono">
                   {routeIndices.length} / 6
                 </span>
-                <span className="text-xs text-[var(--color-teal)] font-medium">100% Monitored</span>
+                <span className="text-xs text-[#15803D] font-semibold">100% Monitored</span>
               </div>
-              <p className="text-[11px] app-text-muted">
+              <p className="text-[11px] text-[#7D8CA3]">
                 Dynamic prototype weight normalization active
               </p>
             </div>
@@ -257,10 +271,10 @@ export default function DashboardPage() {
                   <Link
                     key={uniqueKey}
                     href={`/routes?selected=${route.route}`}
-                    className="block app-bg-card hover:app-bg-card-hover border app-border hover:border-[var(--color-gold)] rounded-lg p-4 transition-all duration-150 group shadow-sm"
+                    className="block app-bg-card hover:app-bg-card-hover border app-border hover:border-[#2E4A6B] rounded-lg p-4 transition-all duration-150 group shadow-sm"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-bold text-sm app-text-primary group-hover:text-[var(--color-gold)] transition-colors">
+                      <span className="font-bold text-sm app-text-primary group-hover:text-[#2E4A6B] transition-colors">
                         {route.route}
                       </span>
                       <span
@@ -277,7 +291,7 @@ export default function DashboardPage() {
                       </span>
                     </div>
 
-                    <div className="text-2xl font-semibold text-[var(--color-gold)] font-mono">
+                    <div className="text-2xl font-semibold text-[#2E4A6B] font-mono">
                       {route.index_value.toFixed(2)}
                     </div>
 
@@ -290,6 +304,9 @@ export default function DashboardPage() {
               })}
             </div>
           </div>
+
+          {/* Interactive Route x Horizon Lead-Time Heatmap */}
+          <RouteHorizonHeatmap />
         </>
       )}
     </div>

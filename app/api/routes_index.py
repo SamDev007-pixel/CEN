@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.db import get_db
 from app.models.db_models import IndexValue
+from app.api.cache import api_cache
 
 router = APIRouter(prefix="/index", tags=["Airfare Index"])
 
@@ -25,20 +26,24 @@ def get_latest_indices(
     GET /index: Returns the latest calculated airfare inflation index per route
     as well as the national composite index.
     """
+    cache_key = f"latest_indices_{method}_{frequency}_{observation_type}"
+    cached = api_cache.get(cache_key)
+    if cached:
+        return cached
     if method and method not in ALLOWED_METHODS:
         raise HTTPException(status_code=400, detail=f"Invalid method '{method}'. Allowed: {', '.join(sorted(ALLOWED_METHODS))}")
     if frequency and frequency not in ALLOWED_FREQUENCIES:
         raise HTTPException(status_code=400, detail=f"Invalid frequency '{frequency}'. Allowed: {', '.join(sorted(ALLOWED_FREQUENCIES))}")
     if observation_type and observation_type not in ALLOWED_OBS_TYPES:
         raise HTTPException(status_code=400, detail=f"Invalid observation_type '{observation_type}'. Allowed: {', '.join(sorted(ALLOWED_OBS_TYPES))}")
-    # Subquery to find maximum date per route & method
+    # Subquery to find maximum date per route & method (handling NULL for composite)
     subquery = (
         db.query(
-            IndexValue.route,
+            func.coalesce(IndexValue.route, '__COMPOSITE__').label("route_key"),
             IndexValue.method,
             func.max(IndexValue.date).label("max_date")
         )
-        .group_by(IndexValue.route, IndexValue.method)
+        .group_by(func.coalesce(IndexValue.route, '__COMPOSITE__'), IndexValue.method)
         .subquery()
     )
 
@@ -46,14 +51,19 @@ def get_latest_indices(
         db.query(IndexValue)
         .join(
             subquery,
-            (IndexValue.route == subquery.c.route) &
+            (func.coalesce(IndexValue.route, '__COMPOSITE__') == subquery.c.route_key) &
             (IndexValue.method == subquery.c.method) &
             (IndexValue.date == subquery.c.max_date)
         )
     )
 
     if method:
-        query = query.filter(IndexValue.method == method)
+        if method == "Dutot":
+            query = query.filter(IndexValue.method.in_(["Dutot", "DGCA_Weighted_Dutot"]))
+        elif method == "Jevons":
+            query = query.filter(IndexValue.method.in_(["Jevons", "DGCA_Weighted_Jevons"]))
+        else:
+            query = query.filter(IndexValue.method == method)
     if frequency:
         query = query.filter(IndexValue.frequency == frequency)
     if observation_type:
@@ -73,7 +83,7 @@ def get_latest_indices(
             q_fallback = q_fallback.filter(IndexValue.method == method)
         latest_values = q_fallback.all()
 
-    return {
+    res = {
         "count": len(latest_values),
         "data": [
             {
@@ -97,6 +107,8 @@ def get_latest_indices(
             for rec in latest_values
         ]
     }
+    api_cache.set(cache_key, res, ttl_sec=30)
+    return res
 
 
 @router.get("/{route}")
@@ -111,7 +123,15 @@ def get_route_history(
     GET /index/{route}: Returns chronological historical index time series for a specified route (e.g. DEL-BOM).
     """
     formatted_route = route.upper().strip()
-    query = db.query(IndexValue).filter(IndexValue.route == formatted_route)
+    cache_key = f"route_history_{formatted_route}_{method}_{frequency}_{limit}"
+    cached = api_cache.get(cache_key)
+    if cached:
+        return cached
+
+    if formatted_route in ("COMPOSITE", "NATIONAL_COMPOSITE", "ALL_INDIA_COMPOSITE", "NATIONAL"):
+        query = db.query(IndexValue).filter(IndexValue.route.is_(None))
+    else:
+        query = db.query(IndexValue).filter(IndexValue.route == formatted_route)
 
     if method:
         query = query.filter(IndexValue.method == method)
@@ -126,7 +146,7 @@ def get_route_history(
             detail=f"No index history records found for route '{formatted_route}'"
         )
 
-    return {
+    res = {
         "route": formatted_route,
         "records_count": len(history),
         "history": [
@@ -150,3 +170,5 @@ def get_route_history(
             for rec in history
         ]
     }
+    api_cache.set(cache_key, res, ttl_sec=15)
+    return res

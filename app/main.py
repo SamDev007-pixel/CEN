@@ -2,16 +2,18 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from app.config import settings
-from app.db import init_db, engine
+from app.db import init_db, engine, SessionLocal
 from app.scraping.scheduler import ScrapeScheduler
 from app.api.routes_index import router as index_router
 from app.api.routes_audit import router as audit_router
 from app.api.routes_export import router as export_router
 from app.api.routes_validation import router as validation_router
+from app.api.routes_auth import router as auth_router, seed_default_users
 
 logging.basicConfig(
     level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO),
@@ -29,6 +31,10 @@ async def lifespan(app: FastAPI):
     try:
         init_db()
         logger.info("Database schema initialized successfully.")
+        
+        # Auto-seed default MoSPI official accounts
+        with SessionLocal() as db_session:
+            seed_default_users(db_session)
     except Exception as e:
         logger.error(f"Database initialization warning: {e}")
     
@@ -65,6 +71,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# GZip Compression (Reduces payload transfer sizes by ~80%)
+app.add_middleware(GZipMiddleware, minimum_size=500)
+
 # Custom Global Exception Handler (Prevents stack trace leaks in production)
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
@@ -79,6 +88,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 # Include all API Routers
+app.include_router(auth_router)
 app.include_router(index_router)
 app.include_router(audit_router)
 app.include_router(export_router)

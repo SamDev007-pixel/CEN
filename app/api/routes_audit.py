@@ -2,12 +2,14 @@ import datetime
 from typing import Optional, List
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
+from sqlalchemy.orm import selectinload
 
 from app.db import get_db
 from app.models.db_models import RawFare, CleanFare, ScrapeRun
 from app.scraping.registry import registry
 from app.scraping.health import health_tracker
+from app.api.cache import api_cache
 
 router = APIRouter(prefix="/audit", tags=["Data Provenance & Audit Trail"])
 
@@ -19,26 +21,45 @@ def get_audit_summary(db: Session = Depends(get_db)):
     GET /audit: Returns system-wide statistical audit summary including raw-to-clean ratios,
     outlier exclusion rates, and fare decomposition status breakdown.
     """
+    cache_key = "audit_summary"
+    cached = api_cache.get(cache_key)
+    if cached:
+        return cached
+
+    # 1. Total Raw Scrapes count
     total_raw = db.query(func.count(RawFare.id)).scalar() or 0
-    total_clean = db.query(func.count(CleanFare.id)).scalar() or 0
-    
-    total_observed = db.query(func.count(CleanFare.id)).filter(CleanFare.observation_type == "OBSERVED").scalar() or 0
-    total_estimated = db.query(func.count(CleanFare.id)).filter(CleanFare.observation_type == "ESTIMATED").scalar() or 0
-    
-    total_outliers = db.query(func.count(CleanFare.id)).filter(CleanFare.is_outlier == True).scalar() or 0
-    
-    decomp_query = db.query(
-        CleanFare.fare_decomposition_status, func.count(CleanFare.id)
-    ).group_by(CleanFare.fare_decomposition_status).all()
-    
-    decomp_dict = {"EXACT": 0, "PARTIAL": 0, "UNAVAILABLE": 0}
-    for status_name, cnt in decomp_query:
-        if status_name in decomp_dict:
-            decomp_dict[status_name] = cnt
 
-    recent_raw = db.query(RawFare).order_by(RawFare.timestamp.desc()).limit(15).all()
+    # 2. Single high-performance combined query for clean fares statistics
+    clean_stats = db.execute(text("""
+        SELECT 
+            COUNT(*) as total_clean,
+            COUNT(*) FILTER (WHERE observation_type = 'OBSERVED') as total_observed,
+            COUNT(*) FILTER (WHERE observation_type = 'ESTIMATED') as total_estimated,
+            COUNT(*) FILTER (WHERE is_outlier = true) as total_outliers,
+            COUNT(*) FILTER (WHERE fare_decomposition_status = 'EXACT') as exact_decomp,
+            COUNT(*) FILTER (WHERE fare_decomposition_status = 'PARTIAL') as partial_decomp,
+            COUNT(*) FILTER (WHERE fare_decomposition_status = 'UNAVAILABLE') as unavail_decomp
+        FROM clean_fares
+    """)).fetchone()
 
-    return {
+    total_clean = clean_stats[0] or 0
+    total_observed = clean_stats[1] or 0
+    total_estimated = clean_stats[2] or 0
+    total_outliers = clean_stats[3] or 0
+    exact_cnt = clean_stats[4] or 0
+    partial_cnt = clean_stats[5] or 0
+    unavail_cnt = clean_stats[6] or 0
+
+    # 3. Fetch recent raw scrapes with eager loading of quotes to prevent N+1 queries
+    recent_raw = (
+        db.query(RawFare)
+        .options(selectinload(RawFare.clean_fares))
+        .order_by(RawFare.timestamp.desc())
+        .limit(15)
+        .all()
+    )
+
+    result = {
         "summary": {
             "total_raw_scrapes": total_raw,
             "total_clean_observations": total_clean,
@@ -48,9 +69,9 @@ def get_audit_summary(db: Session = Depends(get_db)):
             "total_outliers_flagged": total_outliers,
             "outlier_rate_pct": round((total_outliers / total_clean * 100.0), 2) if total_clean > 0 else 0.0,
             "fare_decomposition_breakdown": {
-                "exact": decomp_dict["EXACT"],
-                "partial": decomp_dict["PARTIAL"],
-                "unavailable": decomp_dict["UNAVAILABLE"]
+                "exact": exact_cnt,
+                "partial": partial_cnt,
+                "unavailable": unavail_cnt
             }
         },
         "recent_scrapes": [
@@ -68,6 +89,9 @@ def get_audit_summary(db: Session = Depends(get_db)):
             for r in recent_raw
         ]
     }
+
+    api_cache.set(cache_key, result, ttl_sec=15)
+    return result
 
 
 @router.get("/sources/health")
@@ -117,8 +141,13 @@ def get_scrape_runs(
     """
     GET /audit/runs: Returns chronological scrape execution run logs.
     """
+    cache_key = f"scrape_runs_{limit}"
+    cached = api_cache.get(cache_key)
+    if cached:
+        return cached
+
     runs = db.query(ScrapeRun).order_by(ScrapeRun.started_at.desc()).limit(limit).all()
-    return {
+    res = {
         "runs_count": len(runs),
         "runs": [
             {
@@ -142,6 +171,8 @@ def get_scrape_runs(
             for r in runs
         ]
     }
+    api_cache.set(cache_key, res, ttl_sec=15)
+    return res
 
 
 @router.get("/{route}")

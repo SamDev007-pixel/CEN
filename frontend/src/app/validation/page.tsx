@@ -91,7 +91,7 @@ export default function ValidationPage() {
             onClick={() => setMethod("Dutot")}
             className={`px-3 py-1 rounded-md font-medium transition-all ${
               method === "Dutot"
-                ? "bg-[var(--color-gold)] text-white shadow-sm font-semibold"
+                ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
                 : "app-text-secondary hover:app-text-primary"
             }`}
           >
@@ -101,7 +101,7 @@ export default function ValidationPage() {
             onClick={() => setMethod("Jevons")}
             className={`px-3 py-1 rounded-md font-medium transition-all ${
               method === "Jevons"
-                ? "bg-[var(--color-gold)] text-white shadow-sm font-semibold"
+                ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
                 : "app-text-secondary hover:app-text-primary"
             }`}
           >
@@ -120,34 +120,34 @@ export default function ValidationPage() {
         <>
           {/* Statistical Validation KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            <div className="app-bg-card border app-border rounded-lg p-4 shadow-sm space-y-1">
-              <span className="text-[10px] uppercase font-semibold app-text-muted">Mean Abs Error (MAE)</span>
-              <div className="text-xl font-semibold text-[var(--color-gold)] font-mono">{m?.mae?.toFixed(3) ?? "N/A"} pts</div>
-              <p className="text-[10px] app-text-muted">Target: &lt; 5.0 pts</p>
+            <div className="app-card-blue-1 rounded-xl p-4 shadow-sm space-y-1 transition-transform hover:-translate-y-0.5">
+              <span className="text-[10px] uppercase font-semibold text-[#1E2A44]">Mean Abs Error (MAE)</span>
+              <div className="text-xl font-bold text-[#1E2A44] font-mono">{m?.mae?.toFixed(3) ?? "N/A"} pts</div>
+              <p className="text-[10px] text-[#7D8CA3]">Target: &lt; 5.0 pts</p>
             </div>
 
-            <div className="app-bg-card border app-border rounded-lg p-4 shadow-sm space-y-1">
-              <span className="text-[10px] uppercase font-semibold app-text-muted">Root Mean Sq Err (RMSE)</span>
-              <div className="text-xl font-semibold text-[var(--color-rose)] font-mono">{m?.rmse?.toFixed(3) ?? "N/A"} pts</div>
-              <p className="text-[10px] app-text-muted">Variance penalty</p>
+            <div className="app-card-blue-2 rounded-xl p-4 shadow-sm space-y-1 transition-transform hover:-translate-y-0.5">
+              <span className="text-[10px] uppercase font-semibold text-[#1E2A44]">Root Mean Sq Err (RMSE)</span>
+              <div className="text-xl font-bold text-[#DC2626] font-mono">{m?.rmse?.toFixed(3) ?? "N/A"} pts</div>
+              <p className="text-[10px] text-[#7D8CA3]">Variance penalty</p>
             </div>
 
-            <div className="app-bg-card border app-border rounded-lg p-4 shadow-sm space-y-1">
-              <span className="text-[10px] uppercase font-semibold app-text-muted">Mean Abs % Err (MAPE)</span>
-              <div className="text-xl font-semibold text-[var(--color-teal)] font-mono">{m?.mape?.toFixed(2) ?? "N/A"}%</div>
-              <p className="text-[10px] app-text-muted">Relative error</p>
+            <div className="app-card-blue-3 rounded-xl p-4 shadow-sm space-y-1 transition-transform hover:-translate-y-0.5">
+              <span className="text-[10px] uppercase font-semibold text-[#1E2A44]">Mean Abs % Err (MAPE)</span>
+              <div className="text-xl font-bold text-[#15803D] font-mono">{m?.mape?.toFixed(2) ?? "N/A"}%</div>
+              <p className="text-[10px] text-[#7D8CA3]">Relative error</p>
             </div>
 
-            <div className="app-bg-card border app-border rounded-lg p-4 shadow-sm space-y-1">
-              <span className="text-[10px] uppercase font-semibold app-text-muted">Pearson Correlation (r)</span>
-              <div className="text-xl font-semibold text-[var(--color-teal)] font-mono">{m?.pearson_corr?.toFixed(3) ?? "N/A"}</div>
-              <p className="text-[10px] app-text-muted">Trend alignment</p>
+            <div className="app-card-blue-4 rounded-xl p-4 shadow-sm space-y-1 transition-transform hover:-translate-y-0.5">
+              <span className="text-[10px] uppercase font-semibold text-[#1E2A44]">Pearson Correlation (r)</span>
+              <div className="text-xl font-bold text-[#15803D] font-mono">{m?.pearson_corr?.toFixed(3) ?? "N/A"}</div>
+              <p className="text-[10px] text-[#7D8CA3]">Trend alignment</p>
             </div>
 
-            <div className="app-bg-card border app-border rounded-lg p-4 shadow-sm space-y-1">
-              <span className="text-[10px] uppercase font-semibold app-text-muted">Directional Agreement</span>
-              <div className="text-xl font-semibold text-[var(--color-gold)] font-mono">{m?.directional_agreement_pct?.toFixed(1) ?? "N/A"}%</div>
-              <p className="text-[10px] app-text-muted">Sign concordance</p>
+            <div className="app-card-blue-1 rounded-xl p-4 shadow-sm space-y-1 transition-transform hover:-translate-y-0.5">
+              <span className="text-[10px] uppercase font-semibold text-[#1E2A44]">Directional Agreement</span>
+              <div className="text-xl font-bold text-[#1E2A44] font-mono">{m?.directional_agreement_pct?.toFixed(1) ?? "N/A"}%</div>
+              <p className="text-[10px] text-[#7D8CA3]">Sign concordance</p>
             </div>
           </div>
 

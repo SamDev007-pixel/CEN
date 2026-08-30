@@ -54,61 +54,63 @@ class PlaywrightFlightScraper(BaseScraper):
                     args=["--no-sandbox", "--disable-dev-shm-usage"]
                 )
                 context = browser.new_context(
-                    user_agent=settings.SCRAPER_USER_AGENT,
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
                     viewport={"width": 1280, "height": 800},
                     locale="en-IN",
                     timezone_id="Asia/Kolkata"
                 )
                 page = context.new_page()
 
-                # Google Flights Public Search URL
-                url = f"https://www.google.com/travel/flights?q=Flights%20to%20{destination.upper()}%20from%20{origin.upper()}%20on%20{date_str}%20one-way"
+                # Google Flights Public Search URL with INR currency
+                url = f"https://www.google.com/travel/flights?q=Flights%20to%20{destination.upper()}%20from%20{origin.upper()}%20on%20{date_str}%20one-way&curr=INR"
                 logger.info(f"[Playwright] Searching {origin}->{destination} for {date_str}...")
 
                 try:
                     page.goto(url, wait_until="domcontentloaded", timeout=self.timeout_ms)
-                    page.wait_for_timeout(2000)
+                    page.wait_for_timeout(3500)
 
-                    flight_elements = page.query_selector_all("li.pIav2d, div[jsname='b0t70b'], div.hF6lYb")
-                    for el in flight_elements[:15]:
+                    flight_elements = page.query_selector_all("li, div[role='listitem']")
+                    import re
+                    for el in flight_elements:
                         text = el.inner_text()
                         if not text or "₹" not in text:
                             continue
 
-                        lines = [line.strip() for line in text.split("\n") if line.strip()]
-                        price = None
-                        airline = "Domestic Carrier"
+                        price_match = re.search(r'₹([\d,]+)', text)
+                        if not price_match:
+                            continue
 
-                        for line in lines:
-                            if "₹" in line:
-                                clean_p = line.replace("₹", "").replace(",", "").strip()
-                                try:
-                                    price = float(clean_p)
-                                    break
-                                except ValueError:
-                                    continue
+                        try:
+                            price = float(price_match.group(1).replace(",", ""))
+                        except ValueError:
+                            continue
 
-                        for possible_airline in ["IndiGo", "Air India", "Vistara", "Akasa Air", "SpiceJet", "Air India Express"]:
-                            if any(possible_airline.lower() in line.lower() for line in lines):
+                        if price < 500 or price > 200000:
+                            continue
+
+                        airline = "IndiGo"
+                        for possible_airline in ["Air India Express", "Air India", "IndiGo", "Akasa Air", "SpiceJet", "Vistara"]:
+                            if possible_airline.lower() in text.lower():
                                 airline = possible_airline
                                 break
 
-                        if price and price > 0:
-                            quotes.append(
-                                self.create_standard_quote(
-                                    origin=origin,
-                                    destination=destination,
-                                    travel_date=date_str,
-                                    airline=airline,
-                                    total_price=price,
-                                    plane_type="Airbus A320 / Boeing 737",
-                                    departure_time=f"{date_str}T08:00:00",
-                                    arrival_time=f"{date_str}T10:30:00",
-                                    fare_class=cabin_class,
-                                    observation_type="OBSERVED",
-                                    fare_decomposition_status="UNAVAILABLE"
-                                )
+                        quotes.append(
+                            self.create_standard_quote(
+                                origin=origin,
+                                destination=destination,
+                                travel_date=date_str,
+                                airline=airline,
+                                total_price=price,
+                                plane_type="Airbus A320 / Boeing 737",
+                                departure_time=f"{date_str}T08:00:00",
+                                arrival_time=f"{date_str}T10:30:00",
+                                fare_class=cabin_class,
+                                observation_type="OBSERVED",
+                                fare_decomposition_status="UNAVAILABLE"
                             )
+                        )
+                        if len(quotes) >= 50:
+                            break
                 except Exception as e_page:
                     logger.debug(f"[Playwright] Page extraction exception: {e_page}")
                 finally:

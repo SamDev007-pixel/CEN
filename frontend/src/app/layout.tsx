@@ -3,11 +3,12 @@ import { Noto_Sans, Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { ThemeProvider } from "@/context/ThemeContext";
+import { AuthProvider } from "@/context/AuthContext";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 const notoSans = Noto_Sans({
-  subsets: ["latin"],
+  subsets: ["latin", "devanagari"],
   weight: ["300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-noto-sans",
   display: "swap",
@@ -21,10 +22,7 @@ const outfit = Outfit({
 });
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0c0f17" },
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-  ],
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -39,7 +37,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "AirIndex",
   },
   formatDetection: {
@@ -67,17 +65,19 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`h-full antialiased dark ${notoSans.variable} ${outfit.variable}`}
+      className={`h-full antialiased ${notoSans.variable} ${outfit.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans app-bg-primary app-text-primary transition-colors duration-200 selection:bg-[var(--color-gold-bg)] selection:text-[var(--color-gold)]">
-        <ThemeProvider>
+        <AuthProvider>
           <PwaProvider>
             <Navbar />
-            <main className="flex-1 pb-16">{children}</main>
-            <Footer />
+            <AuthGuard>
+              <main className="flex-1 pb-16">{children}</main>
+              <Footer />
+            </AuthGuard>
           </PwaProvider>
-        </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

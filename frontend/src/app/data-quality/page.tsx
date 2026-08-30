@@ -111,59 +111,59 @@ export default function DataQualityPage() {
           {/* Outlier & Decomposition Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Outlier Card */}
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-3">
+            <div className="app-card-blue-1 rounded-xl p-5 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold app-text-primary">
+                <h3 className="text-sm font-bold text-[#1E2A44]">
                   Statistical Outlier Isolation (3-Sigma + IQR)
                 </h3>
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-1">
                 <div>
-                  <span className="text-[10px] app-text-muted block">Outliers Flagged</span>
-                  <span className="text-2xl font-semibold text-[var(--color-rose)]">
+                  <span className="text-[10px] text-[#7D8CA3] block">Outliers Flagged</span>
+                  <span className="text-2xl font-bold text-[#DC2626]">
                     {summary.total_outliers_flagged}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] app-text-muted block">Rejection Rate</span>
-                  <span className="text-2xl font-semibold app-text-primary">
+                  <span className="text-[10px] text-[#7D8CA3] block">Rejection Rate</span>
+                  <span className="text-2xl font-bold text-[#111827]">
                     {summary.outlier_rate_pct.toFixed(2)}%
                   </span>
                 </div>
               </div>
-              <p className="text-[11px] app-text-secondary pt-2 border-t app-border-subtle leading-relaxed">
+              <p className="text-[11px] text-[#7D8CA3] pt-2 border-t border-[#CBDCEE] leading-relaxed">
                 Prices with Z-score &gt; 3.0 or exceeding interquartile fences are automatically excluded from the Dutot and Jevons index relative aggregation to prevent distortion.
               </p>
             </div>
 
             {/* Fare Decomposition Card */}
-            <div className="app-bg-card border app-border rounded-lg p-5 shadow-sm space-y-3">
+            <div className="app-card-blue-2 rounded-xl p-5 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold app-text-primary">
+                <h3 className="text-sm font-bold text-[#1E2A44]">
                   Fare Decomposition Transparency
                 </h3>
               </div>
               <div className="grid grid-cols-3 gap-2 text-xs font-mono pt-1">
                 <div>
-                  <span className="text-[10px] app-text-muted block">Unavailable</span>
-                  <span className="text-xl font-bold text-[var(--color-gold)]">
+                  <span className="text-[10px] text-[#7D8CA3] block">Unavailable</span>
+                  <span className="text-xl font-bold text-[#1E2A44]">
                     {summary.fare_decomposition_breakdown.unavailable}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] app-text-muted block">Exact</span>
-                  <span className="text-xl font-bold text-[var(--color-teal)]">
+                  <span className="text-[10px] text-[#7D8CA3] block">Exact</span>
+                  <span className="text-xl font-bold text-[#15803D]">
                     {summary.fare_decomposition_breakdown.exact}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] app-text-muted block">Partial</span>
-                  <span className="text-xl font-bold app-text-secondary">
+                  <span className="text-[10px] text-[#7D8CA3] block">Partial</span>
+                  <span className="text-xl font-bold text-[#111827]">
                     {summary.fare_decomposition_breakdown.partial}
                   </span>
                 </div>
               </div>
-              <p className="text-[11px] app-text-secondary pt-2 border-t app-border-subtle leading-relaxed">
+              <p className="text-[11px] text-[#7D8CA3] pt-2 border-t border-[#CBDCEE] leading-relaxed">
                 Zero arbitrary flat GST assumptions applied. When itemized tax breakdowns are not exposed by aggregators, status is recorded as UNAVAILABLE.
               </p>
             </div>
@@ -189,7 +189,7 @@ export default function DataQualityPage() {
               </div>
               <div>
                 <span className="app-text-muted block text-[10px]">Estimated Quotes</span>
-                <span className="text-xl font-bold text-[var(--color-gold)]">{summary.total_estimated_quotes}</span>
+                <span className="text-xl font-bold text-[#1E2A44]">{summary.total_estimated_quotes}</span>
               </div>
             </div>
           </div>

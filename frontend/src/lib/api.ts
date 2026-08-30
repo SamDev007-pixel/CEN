@@ -9,28 +9,104 @@ import {
   ValidationCoverageResponse,
   RouteValidationResponse
 } from "../types/api";
+import { User, LoginCredentials, AuthResponse, DemoPersona } from "../types/auth";
 
-const RAW_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
-const API_BASE_URL = RAW_API_URL.replace(/\/+$/, "");
+export function getApiBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+    const trimmed = process.env.NEXT_PUBLIC_API_BASE_URL.trim();
+    if (trimmed) return trimmed.replace(/\/+$/, "");
+  }
+  if (typeof window !== "undefined") {
+    const { hostname, origin } = window.location;
+    const isLocal = hostname === "localhost" || hostname === "127.0.0.1";
+    if (!isLocal) {
+      return origin;
+    }
+  }
+  return "http://localhost:8000";
+}
+
+// Client-side In-Memory Cache for sub-millisecond tab switching
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const clientApiCache = new Map<string, CacheEntry<any>>();
+const CACHE_TTL_MS = 60000; // 60 seconds cache
+
+export function invalidateApiCache(): void {
+  clientApiCache.clear();
+}
+
+export function getStoredAuthToken(): string | null {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("mospi_auth_token");
+  }
+  return null;
+}
 
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const isGet = !options?.method || options.method.toUpperCase() === "GET";
+  const cacheKey = `${endpoint}`;
+
+  // Instant SWR pattern: If cached data exists, return immediately and revalidate in background if > 15s old
+  if (isGet && clientApiCache.has(cacheKey)) {
+    const entry = clientApiCache.get(cacheKey)!;
+    const age = Date.now() - entry.timestamp;
+    if (age < CACHE_TTL_MS) {
+      // If slightly stale (age > 15s), trigger silent background revalidation without blocking UI
+      if (age > 15000) {
+        setTimeout(() => {
+          performFetch<T>(endpoint, options, cacheKey).catch(() => {});
+        }, 10);
+      }
+      return entry.data as T;
+    }
+  }
+
+  return performFetch<T>(endpoint, options, cacheKey);
+}
+
+async function performFetch<T>(endpoint: string, options?: RequestInit, cacheKey?: string): Promise<T> {
+  const url = `${getApiBaseUrl()}${endpoint}`;
+  const token = getStoredAuthToken();
+
+  const headers: Record<string, string> = {
+    "Accept": "application/json",
+    ...(options?.headers as Record<string, string>),
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   try {
     const res = await fetch(url, {
       ...options,
-      headers: {
-        "Accept": "application/json",
-        ...options?.headers,
-      },
-      next: { revalidate: 30 } // ISR / Cache revalidation 30s
+      headers,
     });
 
     if (!res.ok) {
-      throw new Error(`API Error [${res.status}]: ${res.statusText} for ${endpoint}`);
+      let errorDetail = res.statusText;
+      try {
+        const errorJson = await res.json();
+        if (errorJson.detail) errorDetail = errorJson.detail;
+      } catch {
+        // fallback to statusText
+      }
+      throw new Error(`API Error [${res.status}]: ${errorDetail}`);
     }
 
-    return await res.json();
+    const data = await res.json();
+    if (cacheKey) {
+      clientApiCache.set(cacheKey, { data, timestamp: Date.now() });
+    }
+    return data;
   } catch (err: any) {
+    if (cacheKey && clientApiCache.has(cacheKey)) {
+      return clientApiCache.get(cacheKey)!.data as T;
+    }
     console.error(`Failed to fetch ${url}:`, err);
     throw err;
   }
@@ -114,5 +190,33 @@ export async function getRouteValidation(
 // 4. Export URL Generator
 // -------------------------------------------------------------
 export function getExportUrl(format: "csv" | "json" = "csv"): string {
-  return `${API_BASE_URL}/export/?format=${format}`;
+  return `${getApiBaseUrl()}/export?format=${format}`;
 }
+
+// -------------------------------------------------------------
+// 5. Official Authentication APIs
+// -------------------------------------------------------------
+export async function loginOfficial(credentials: LoginCredentials): Promise<AuthResponse> {
+  return fetchAPI<AuthResponse>("/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(credentials),
+  });
+}
+
+export async function getCurrentUserProfile(): Promise<User> {
+  return fetchAPI<User>("/auth/me");
+}
+
+export async function logoutOfficial(): Promise<{ status: string; message: string }> {
+  return fetchAPI<{ status: string; message: string }>("/auth/logout", {
+    method: "POST",
+  });
+}
+
+export async function getDemoPersonas(): Promise<DemoPersona[]> {
+  return fetchAPI<DemoPersona[]>("/auth/demo-personas");
+}
+

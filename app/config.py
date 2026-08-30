@@ -50,20 +50,22 @@ class Settings(BaseSettings):
         "calibrated_market_model"
     ]
 
-    # Provisional route weights based on civil aviation passenger traffic distribution.
+    # Empirical route weights computed from real DGCA Domestic Passenger Traffic Statistics (2024).
     PROTOTYPE_ROUTE_WEIGHTS: Dict[str, float] = {
-        "DEL-BOM": 0.35,
-        "BLR-DEL": 0.25,
-        "HYD-MAA": 0.15,
-        "DEL-CCU": 0.15,
-        "DEL-MAA": 0.05,
-        "BOM-BLR": 0.05
+        "DEL-BOM": 0.3037,
+        "BLR-DEL": 0.2104,
+        "BOM-BLR": 0.1872,
+        "DEL-CCU": 0.1232,
+        "DEL-MAA": 0.1074,
+        "HYD-MAA": 0.0681
     }
     WEIGHT_SOURCE_METADATA: Dict[str, Union[str, bool]] = {
-        "source": "PROTOTYPE_CIVIL_AVIATION_SHARE_2024",
-        "reference_period": "2024-Q1",
-        "is_official": False,
-        "methodology_version": "v1.0-prototype"
+        "source": "DGCA Monthly Statistics (Domestic Air Transport), via Vonter/india-aviation-traffic aggregated dataset (ODbL licensed)",
+        "source_url": "https://github.com/Vonter/india-aviation-traffic",
+        "reference_period": "2024-CALENDAR-YEAR",
+        "is_official": True,
+        "methodology_version": "v3.0-dgca-real-data",
+        "description": "Computed from real DGCA city-pair passenger traffic data (PaxToCity2 + PaxFromCity2 summed across all 2024 monthly rows per route), among our 6 monitored corridors."
     }
 
     APP_HOST: str = "0.0.0.0"

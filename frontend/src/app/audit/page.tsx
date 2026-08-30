@@ -93,25 +93,25 @@ export default function AuditPage() {
           5-Stage Ingestion & Processing Pipeline
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5 text-xs">
-          <div className="app-bg-card border app-border rounded-lg p-3 shadow-sm space-y-1">
-            <div className="font-bold app-text-primary">1. Scrape Harvest</div>
-            <p className="text-[10px] app-text-muted">Multi-source JSON payload ingestion with polite bot headers.</p>
+          <div className="app-card-blue-1 rounded-xl p-3 shadow-sm space-y-1 transition-transform hover:-translate-y-0.5">
+            <div className="font-bold text-[#1E2A44]">1. Scrape Harvest</div>
+            <p className="text-[10px] text-[#7D8CA3]">Multi-source JSON payload ingestion with polite bot headers.</p>
           </div>
-          <div className="app-bg-card border app-border rounded-lg p-3 shadow-sm space-y-1">
-            <div className="font-bold text-[var(--color-rose)]">2. SHA-256 Hash</div>
-            <p className="text-[10px] app-text-muted">Cryptographic fingerprint stored in raw_fares table.</p>
+          <div className="app-card-blue-2 rounded-xl p-3 shadow-sm space-y-1 transition-transform hover:-translate-y-0.5">
+            <div className="font-bold text-[#DC2626]">2. SHA-256 Hash</div>
+            <p className="text-[10px] text-[#7D8CA3]">Cryptographic fingerprint stored in raw_fares table.</p>
           </div>
-          <div className="app-bg-card border app-border rounded-lg p-3 shadow-sm space-y-1">
-            <div className="font-bold app-text-primary">3. Ingestion Check</div>
-            <p className="text-[10px] app-text-muted">Drops ₹0 quotes, circular routes, and malformed structures.</p>
+          <div className="app-card-blue-3 rounded-xl p-3 shadow-sm space-y-1 transition-transform hover:-translate-y-0.5">
+            <div className="font-bold text-[#1E2A44]">3. Ingestion Check</div>
+            <p className="text-[10px] text-[#7D8CA3]">Drops ₹0 quotes, circular routes, and malformed structures.</p>
           </div>
-          <div className="app-bg-card border app-border rounded-lg p-3 shadow-sm space-y-1">
-            <div className="font-bold text-[var(--color-gold)]">4. Outlier Filter</div>
-            <p className="text-[10px] app-text-muted">3-Sigma Z-Score + IQR bounding flags non-market artifacts.</p>
+          <div className="app-card-blue-4 rounded-xl p-3 shadow-sm space-y-1 transition-transform hover:-translate-y-0.5">
+            <div className="font-bold text-[#1E2A44]">4. Outlier Filter</div>
+            <p className="text-[10px] text-[#7D8CA3]">3-Sigma Z-Score + IQR bounding flags non-market artifacts.</p>
           </div>
-          <div className="app-bg-card border app-border rounded-lg p-3 shadow-sm space-y-1">
-            <div className="font-bold text-[var(--color-teal)]">5. Index Relative</div>
-            <p className="text-[10px] app-text-muted">Dutot & Jevons calculation over observed quotes.</p>
+          <div className="app-card-blue-1 rounded-xl p-3 shadow-sm space-y-1 transition-transform hover:-translate-y-0.5">
+            <div className="font-bold text-[#15803D]">5. Index Relative</div>
+            <p className="text-[10px] text-[#7D8CA3]">Dutot & Jevons calculation over observed quotes.</p>
           </div>
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function AuditPage() {
                   onClick={() => setFilterType("ALL")}
                   className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
                     filterType === "ALL"
-                      ? "bg-[var(--color-gold)] text-white shadow-sm font-semibold"
+                      ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
                       : "app-bg-surface app-text-secondary hover:app-text-primary"
                   }`}
                 >
@@ -145,7 +145,7 @@ export default function AuditPage() {
                   onClick={() => setFilterType("CLEAN")}
                   className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
                     filterType === "CLEAN"
-                      ? "bg-[var(--color-gold)] text-white shadow-sm font-semibold"
+                      ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
                       : "app-bg-surface app-text-secondary hover:app-text-primary"
                   }`}
                 >
@@ -155,7 +155,7 @@ export default function AuditPage() {
                   onClick={() => setFilterType("OUTLIERS")}
                   className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
                     filterType === "OUTLIERS"
-                      ? "bg-[var(--color-gold)] text-white shadow-sm font-semibold"
+                      ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
                       : "app-bg-surface app-text-secondary hover:app-text-primary"
                   }`}
                 >
