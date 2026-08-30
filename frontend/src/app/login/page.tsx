@@ -192,7 +192,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="officer@mospi.gov.in"
               required
-              className="w-full px-3 py-2 text-xs sm:text-sm rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#1E2A44]/20 focus:border-[#1E2A44] transition-colors placeholder:text-[#7D8CA3]"
+              className="w-full px-3 py-2 text-xs sm:text-sm rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-colors placeholder:text-[#B8860B]/70"
             />
           </div>
 
@@ -208,7 +208,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
                 required
-                className="w-full px-3 py-2 pr-9 text-xs sm:text-sm rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#1E2A44]/20 focus:border-[#1E2A44] transition-colors placeholder:text-[#7D8CA3]"
+                className="w-full px-3 py-2 pr-9 text-xs sm:text-sm rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-colors placeholder:text-[#B8860B]/70"
               />
               <button
                 type="button"
@@ -259,18 +259,18 @@ export default function LoginPage() {
                   placeholder="Enter code"
                   maxLength={6}
                   required
-                  className="w-full px-3 py-2 text-xs sm:text-sm font-mono tracking-wider rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#1E2A44]/20 focus:border-[#1E2A44] transition-colors placeholder:text-[#7D8CA3]"
+                  className="w-full px-3 py-2 text-xs sm:text-sm font-mono tracking-wider rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-colors placeholder:text-[#B8860B]/70"
                 />
               </div>
             </div>
           </div>
 
-          {/* Login Submit Button */}
+          {/* Login Submit Button: MoSPI Gold Fill with Crisp Dark Text */}
           <div className="pt-2">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 px-4 rounded-lg bg-[#1E2A44] hover:bg-[#111827] text-[#F5F3EC] font-bold text-xs sm:text-sm transition-all shadow-md cursor-pointer disabled:opacity-50 border border-[#111827]"
+              className="w-full py-2.5 px-4 rounded-lg bg-[#B8860B] hover:bg-[#996515] text-[#111827] font-extrabold text-xs sm:text-sm transition-all shadow-md cursor-pointer disabled:opacity-50 border border-[#996515]/40"
             >
               {isLoading ? "Verifying..." : "Login"}
             </button>
@@ -311,7 +311,7 @@ export default function LoginPage() {
             </p>
             <button
               onClick={() => setShowForgotModal(false)}
-              className="w-full py-2 bg-[#1E2A44] hover:bg-[#111827] text-[#F5F3EC] font-bold text-xs rounded-lg transition-colors cursor-pointer shadow-sm"
+              className="w-full py-2 bg-[#B8860B] hover:bg-[#996515] text-[#111827] font-bold text-xs rounded-lg transition-colors cursor-pointer shadow-sm"
             >
               OK
             </button>
