@@ -265,12 +265,12 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Login Submit Button: MoSPI Gold Fill with Crisp Dark Text */}
+          {/* Login Submit Button: Lighter Soft Gold with Crisp White Text */}
           <div className="pt-2">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 px-4 rounded-lg bg-[#B8860B] hover:bg-[#996515] text-[#111827] font-extrabold text-xs sm:text-sm transition-all shadow-md cursor-pointer disabled:opacity-50 border border-[#996515]/40"
+              className="w-full py-2.5 px-4 rounded-lg bg-[#E5A93C] hover:bg-[#D4982B] text-white font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer disabled:opacity-50 border border-[#D4982B]/40 tracking-wide"
             >
               {isLoading ? "Verifying..." : "Login"}
             </button>
@@ -311,7 +311,7 @@ export default function LoginPage() {
             </p>
             <button
               onClick={() => setShowForgotModal(false)}
-              className="w-full py-2 bg-[#B8860B] hover:bg-[#996515] text-[#111827] font-bold text-xs rounded-lg transition-colors cursor-pointer shadow-sm"
+              className="w-full py-2 bg-[#E5A93C] hover:bg-[#D4982B] text-white font-bold text-xs rounded-lg transition-colors cursor-pointer shadow-sm border border-[#D4982B]/40"
             >
               OK
             </button>
