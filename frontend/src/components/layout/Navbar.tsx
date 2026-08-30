@@ -124,8 +124,8 @@ export default function Navbar() {
                       href={link.href}
                       className={`px-2.5 xl:px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-all duration-150 ${
                         isActive
-                          ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
-                          : "text-[#1E2A44] hover:bg-[#EEF4FA] hover:text-[#111827]"
+                          ? "bg-[#284269] text-[#F5F3EC] shadow-sm font-bold border border-[#1E2A44]"
+                          : "text-[#284269] hover:bg-[#EEF4FA] hover:text-[#111827]"
                       }`}
                     >
                       {link.name}
@@ -264,7 +264,7 @@ export default function Navbar() {
                       onClick={() => setSidebarOpen(false)}
                       className={`flex items-center justify-between px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
                         isActive
-                          ? "bg-[#1E2A44] text-[#F5F3EC] shadow-md font-bold border border-[#111827]"
+                          ? "bg-[#284269] text-[#F5F3EC] shadow-md font-bold border border-[#1E2A44]"
                           : "bg-white text-[#111827] border border-[#E2E8F0] hover:border-[#CBD7E6] hover:bg-[#EEF4FA]"
                       }`}
                     >

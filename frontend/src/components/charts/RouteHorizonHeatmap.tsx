@@ -123,8 +123,8 @@ export default function RouteHorizonHeatmap({ data }: RouteHorizonHeatmapProps) 
             onClick={() => setSelectedMode("FARE")}
             className={`px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer flex items-center gap-1 ${
               selectedMode === "FARE"
-                ? "bg-[#1E2A44] text-[#F5F3EC] shadow-xs"
-                : "text-[#1E2A44] hover:bg-[#EEF4FA]"
+                ? "bg-[#284269] text-[#F5F3EC] shadow-xs font-bold"
+                : "text-[#284269] hover:bg-[#EEF4FA]"
             }`}
           >
             <DollarSign className="w-3 h-3" />
@@ -134,8 +134,8 @@ export default function RouteHorizonHeatmap({ data }: RouteHorizonHeatmapProps) 
             onClick={() => setSelectedMode("SURGE")}
             className={`px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer flex items-center gap-1 ${
               selectedMode === "SURGE"
-                ? "bg-[#1E2A44] text-[#F5F3EC] shadow-xs"
-                : "text-[#1E2A44] hover:bg-[#EEF4FA]"
+                ? "bg-[#284269] text-[#F5F3EC] shadow-xs font-bold"
+                : "text-[#284269] hover:bg-[#EEF4FA]"
             }`}
           >
             <TrendingUp className="w-3 h-3" />

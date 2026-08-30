@@ -118,7 +118,7 @@ export default function DashboardPage() {
               onClick={() => setMethod("Dutot")}
               className={`px-3.5 py-1 text-xs font-semibold rounded-md transition-all ${
                 method === "Dutot"
-                  ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
+                  ? "bg-[#284269] text-[#F5F3EC] shadow-sm font-bold border border-[#1E2A44]"
                   : "app-text-secondary hover:app-text-primary"
               }`}
             >
@@ -128,7 +128,7 @@ export default function DashboardPage() {
               onClick={() => setMethod("Jevons")}
               className={`px-3.5 py-1 text-xs font-semibold rounded-md transition-all ${
                 method === "Jevons"
-                  ? "bg-[#1E2A44] text-[#F5F3EC] shadow-sm font-bold border border-[#111827]"
+                  ? "bg-[#284269] text-[#F5F3EC] shadow-sm font-bold border border-[#1E2A44]"
                   : "app-text-secondary hover:app-text-primary"
               }`}
             >
