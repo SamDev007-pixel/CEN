@@ -9,7 +9,6 @@ import {
   EyeOff,
   AlertCircle,
   X,
-  Building2,
   KeyRound
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -40,7 +39,6 @@ export default function LoginPage() {
 
   // Modals
   const [showForgotModal, setShowForgotModal] = useState(false);
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   // Draw security CAPTCHA canvas
   const drawCaptcha = useCallback((code: string) => {
@@ -56,7 +54,7 @@ export default function LoginPage() {
     ctx.fillStyle = "#EEF4FA";
     ctx.fillRect(0, 0, width, height);
 
-    // Random Background Noise Lines in Soft Slate Gray-Blue (#7D8CA3)
+    // Random Background Noise Lines
     for (let i = 0; i < 4; i++) {
       ctx.strokeStyle = "rgba(125, 140, 163, 0.4)";
       ctx.lineWidth = 1;
@@ -138,7 +136,7 @@ export default function LoginPage() {
       {/* Central Pure White Government Login Box */}
       <div className="relative z-10 w-full max-w-md bg-white border border-[#CBDCEE] rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
         
-        {/* Top Header: Official Emblem & Department Name with Exact Color Palette */}
+        {/* Top Header: Official Emblem & Department Name */}
         <div className="text-center space-y-2 border-b border-[#CBDCEE] pb-5">
           <div className="flex justify-center">
             <Image
@@ -156,8 +154,8 @@ export default function LoginPage() {
             <h1 className="text-base font-extrabold text-[#111827] tracking-tight">
               GOVERNMENT OF INDIA
             </h1>
-            {/* Executive Navy Blue: #1E2A44 */}
-            <p className="text-xs text-[#1E2A44] font-bold">
+            {/* MoSPI Gold Text: #B8860B */}
+            <p className="text-xs font-bold text-[#B8860B]">
               Ministry of Statistics & Programme Implementation
             </p>
             {/* Soft Slate Gray-Blue: #7D8CA3 */}
@@ -166,8 +164,8 @@ export default function LoginPage() {
             </p>
           </div>
           <div className="pt-2">
-            {/* Badge: Steel Navy #2E4A6B & Executive Navy #1E2A44 */}
-            <span className="inline-block text-[11px] font-bold uppercase tracking-wider px-3 py-0.5 rounded bg-[#EEF4FA] border border-[#CBDCEE] text-[#1E2A44]">
+            {/* Gold Badge Matching MoSPI Pill */}
+            <span className="inline-block text-[11px] font-extrabold uppercase tracking-wider px-3 py-0.5 rounded-md bg-amber-50/90 border border-amber-300/80 text-[#B8860B] shadow-2xs">
               Official Login
             </span>
           </div>
@@ -185,7 +183,6 @@ export default function LoginPage() {
         <form onSubmit={handleFormSubmit} className="space-y-4">
           {/* Username / Registered Email */}
           <div>
-            {/* Primary Heading / Label: #111827 */}
             <label className="block text-xs font-semibold text-[#111827] mb-1">
               Username (Registered Email Address)
             </label>
@@ -268,7 +265,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Login Submit Button: Executive Navy (#1E2A44) with Linen Cream Ivory (#F5F3EC) text */}
+          {/* Login Submit Button */}
           <div className="pt-2">
             <button
               type="submit"
@@ -279,20 +276,12 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {/* Footer links: Steel Navy (#2E4A6B) */}
-          <div className="flex items-center justify-center gap-2 pt-1 text-xs text-[#2E4A6B]">
-            <button
-              type="button"
-              onClick={() => setShowRegisterModal(true)}
-              className="hover:text-[#111827] hover:underline transition-colors cursor-pointer font-semibold"
-            >
-              New User?
-            </button>
-            <span className="text-[#7D8CA3]">|</span>
+          {/* Footer link: Forgot Password only */}
+          <div className="flex items-center justify-center pt-1 text-xs">
             <button
               type="button"
               onClick={() => setShowForgotModal(true)}
-              className="hover:text-[#111827] hover:underline transition-colors cursor-pointer font-semibold"
+              className="text-[#7D8CA3] hover:text-[#B8860B] hover:underline transition-colors cursor-pointer font-semibold"
             >
               Forgot Password?
             </button>
@@ -306,7 +295,7 @@ export default function LoginPage() {
           <div className="bg-white border border-[#CBDCEE] rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3">
             <div className="flex items-center justify-between text-[#111827] font-bold text-sm">
               <div className="flex items-center gap-2">
-                <KeyRound className="w-4 h-4 text-[#1E2A44]" />
+                <KeyRound className="w-4 h-4 text-[#B8860B]" />
                 <span>Password Reset</span>
               </div>
               <button
@@ -318,40 +307,10 @@ export default function LoginPage() {
               </button>
             </div>
             <p className="text-xs text-[#7D8CA3] leading-relaxed">
-              For official password reset, contact the <strong className="text-[#111827]">MoSPI / NIC Helpdesk</strong> at <span className="font-mono text-[#1E2A44] font-bold">cpi.support@mospi.gov.in</span> or use credentials <span className="font-mono text-[#111827] font-bold">director.cpi@mospi.gov.in / Password@123</span>.
+              For official password reset, contact the <strong className="text-[#111827]">MoSPI / NIC Helpdesk</strong> at <span className="font-mono text-[#B8860B] font-bold">cpi.support@mospi.gov.in</span> or use credentials <span className="font-mono text-[#111827] font-bold">director.cpi@mospi.gov.in / Password@123</span>.
             </p>
             <button
               onClick={() => setShowForgotModal(false)}
-              className="w-full py-2 bg-[#1E2A44] hover:bg-[#111827] text-[#F5F3EC] font-bold text-xs rounded-lg transition-colors cursor-pointer shadow-sm"
-            >
-              OK
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* New User Modal */}
-      {showRegisterModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white border border-[#CBDCEE] rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3">
-            <div className="flex items-center justify-between text-[#111827] font-bold text-sm">
-              <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-[#1E2A44]" />
-                <span>New User Registration</span>
-              </div>
-              <button
-                onClick={() => setShowRegisterModal(false)}
-                className="text-[#7D8CA3] hover:text-[#111827] p-1 cursor-pointer transition-colors"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <p className="text-xs text-[#7D8CA3] leading-relaxed">
-              Official accounts for <strong className="text-[#111827]">Project CEN</strong> are provisioned through the MoSPI Computer Centre / NSO Division for verified government personnel.
-            </p>
-            <button
-              onClick={() => setShowRegisterModal(false)}
               className="w-full py-2 bg-[#1E2A44] hover:bg-[#111827] text-[#F5F3EC] font-bold text-xs rounded-lg transition-colors cursor-pointer shadow-sm"
             >
               OK
