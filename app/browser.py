@@ -25,7 +25,7 @@ class FlightQuoteResult(BaseModel):
     flight_number: Optional[str] = Field(None, description="Flight code e.g. 6E-2134, AI-805")
     origin: str = Field(description="3-letter IATA origin airport code e.g. DEL, BOM, BLR")
     destination: str = Field(description="3-letter IATA destination airport code e.g. BOM, BLR, MAA")
-    departure_time: Optional[str] = Field(None, description="Departure time in 24hr or 12hr format e.g. 06:15")
+    departure_time: Optional[str] = Field(None, description="Departure time e.g. 06:15")
     arrival_time: Optional[str] = Field(None, description="Arrival time e.g. 08:30")
     price_inr: int = Field(description="Total one-way base economy fare in Indian Rupees (INR), e.g. 4850")
     is_non_stop: bool = Field(True, description="True if direct flight without layover")
@@ -39,119 +39,137 @@ class FlightExtractionOutput(BaseModel):
     departure_date: str = Field("", description="Date in YYYY-MM-DD format")
 
 
+def check_environment() -> dict:
+    """Check and display available browser-use tools and API keys."""
+    keys = {
+        "BROWSER_USE_API_KEY": bool(os.getenv("BROWSER_USE_API_KEY")),
+        "OPENAI_API_KEY": bool(os.getenv("OPENAI_API_KEY")),
+        "GEMINI_API_KEY": bool(os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")),
+        "ANTHROPIC_API_KEY": bool(os.getenv("ANTHROPIC_API_KEY")),
+    }
+    return keys
+
+
 async def scrape_flights_with_browser_use(
     origin: str = "DEL",
     destination: str = "BOM",
     departure_date: Optional[str] = None,
-    timeout_minutes: int = 15,
 ) -> FlightExtractionOutput:
     """
     Launches an autonomous Browser Use AI agent to search live flight prices for the given route.
     """
     if not departure_date:
-        # Default to tomorrow (T-1)
-        departure_date = (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%d")
+        departure_date = (datetime.utcnow() + timedelta(days=2)).strftime("%Y-%m-%d")
 
     api_key = os.getenv("BROWSER_USE_API_KEY")
-    if not api_key:
-        logger.warning("BROWSER_USE_API_KEY is not set. Looking for local fallback or environment configuration.")
-        raise ValueError("BROWSER_USE_API_KEY environment variable is required to use Cloud Browser Use SDK.")
-
-    # Lazy imports for browser-use SDK
-    from browser_use import Agent, BrowserSession
-    from browser_use_sdk.v4 import AsyncBrowserUse
 
     task_prompt = f"""
-    You are an automated flight price intelligence agent for the Government of India (MoSPI).
-    
-    TASK:
-    1. Navigate to Google Flights (https://www.google.com/travel/flights) or EaseMyTrip (https://www.easemytrip.com).
-    2. Search for ONE-WAY economy non-stop flights from {origin} ({origin}) to {destination} ({destination}) on departure date {departure_date}.
-    3. Look at the search results and extract up to 10 available flights.
-    4. For each flight, extract:
-       - Airline Name (IndiGo, Air India, SpiceJet, Akasa Air, etc.)
-       - Flight Number (if visible, e.g. 6E 5021)
-       - Departure Time (e.g. 07:00)
-       - Arrival Time (e.g. 09:15)
-       - Lowest Total Price in Indian Rupees (INR) as an integer (strip currency symbols and commas, e.g. 4950)
-       - Non-stop status (true/false)
-    5. Return the extracted data in valid JSON matching the format:
-       {{
-         "route": "{origin}-{destination}",
-         "departure_date": "{departure_date}",
-         "total_found": <count>,
-         "flights": [
-           {{
-             "airline": "<Airline>",
-             "flight_number": "<Flight Number>",
-             "origin": "{origin}",
-             "destination": "{destination}",
-             "departure_time": "<Departure Time>",
-             "arrival_time": "<Arrival Time>",
-             "price_inr": <Integer Price in INR>,
-             "is_non_stop": true,
-             "source": "browser-use-agent"
-           }}
-         ]
-       }}
+    Search for ONE-WAY economy non-stop flights from {origin} to {destination} on departure date {departure_date}.
+    Navigate to Google Flights (https://www.google.com/travel/flights) or EaseMyTrip (https://www.easemytrip.com).
+    Find and extract up to 10 available flights with airline name, flight number, departure time, arrival time, and price in INR.
     """
 
-    logger.info(f"🚀 Initializing Browser Use Cloud session for route {origin}->{destination} on {departure_date}...")
+    if api_key:
+        logger.info("🌐 Using Browser Use Cloud SDK...")
+        from browser_use_sdk import AsyncBrowserUse
 
-    async with AsyncBrowserUse(api_key=api_key) as client:
-        # Create browser in Indian proxy context for INR pricing
-        browser = await client.browsers.create(
-            proxy_country_code="in",
-            timeout=timeout_minutes,
-        )
-        logger.info(f"🌐 Cloud Browser Session started. ID: {browser.id}")
-
-        try:
-            agent = Agent(
+        async with AsyncBrowserUse(api_key=api_key) as client:
+            logger.info(f"🚀 Dispatching autonomous task for {origin}->{destination} on {departure_date}...")
+            task_run = await client.run(
                 task=task_prompt,
-                browser_session=BrowserSession(cdp_url=browser.cdp_url),
+                output_schema=FlightExtractionOutput,
             )
-            
-            logger.info("🤖 Agent is now autonomously navigating and extracting flight quotes...")
-            result = await agent.run()
-            logger.info("✅ Agent execution finished successfully!")
-            
-            # Print raw result
-            print("\n" + "="*50)
-            print("AGENT RESULT SUMMARY:")
-            print(result)
-            print("="*50 + "\n")
-            
-            return result
+            logger.info(f"✅ Cloud Task Finished! Status: {task_run.status if hasattr(task_run, 'status') else 'Completed'}")
+            return task_run
+    else:
+        logger.info("🖥️ Using Local Browser Use Agent...")
+        from browser_use import Agent
 
-        except Exception as e:
-            logger.error(f"❌ Error during Browser Use agent run: {e}")
-            raise
-        finally:
-            logger.info(f"🛑 Stopping cloud browser session {browser.id} to avoid unnecessary billing...")
-            await client.browsers.stop(browser.id)
+        # Check for local LLM keys
+        openai_key = os.getenv("OPENAI_API_KEY")
+        gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+
+        llm = None
+        if openai_key:
+            from langchain_openai import ChatOpenAI
+            llm = ChatOpenAI(model="gpt-4o", api_key=openai_key)
+        elif gemini_key:
+            from langchain_google_genai import ChatGoogleGenerativeAI
+            llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=gemini_key)
+        
+        agent = Agent(
+            task=task_prompt,
+            llm=llm,
+        )
+        logger.info("🤖 Starting local browser agent...")
+        history = await agent.run()
+        logger.info("✅ Local Agent execution finished!")
+        return history
 
 
 async def main():
-    # Example: Scrape DEL to BOM flights for tomorrow
     origin = "DEL"
     destination = "BOM"
     dep_date = (datetime.utcnow() + timedelta(days=2)).strftime("%Y-%m-%d")
 
-    print(f"\n=======================================================")
-    print(f"✈️ BHARAT-APIX / MOSPI AIRFARE SCRAPER AGENT")
-    print(f"Route: {origin} -> {destination} | Date: {dep_date}")
-    print(f"=======================================================\n")
+    print("\n" + "="*60)
+    print("✈️  PROJECT CEN — BROWSER-USE AIRLINE SCRAPER AGENT")
+    print(f"📍 Route: {origin} -> {destination}")
+    print(f"📅 Date:  {dep_date}")
+    print("="*60)
 
+    # 1. Diagnostic Environment Check
+    print("\n🔍 1. Checking Environment & API Keys:")
+    env_status = check_environment()
+    for key, present in env_status.items():
+        status_icon = "✅ Configured" if present else "❌ Not set"
+        print(f"   • {key:<22}: {status_icon}")
+
+    if not any(env_status.values()):
+        print("\n⚠️  Notice: No AI API key found in your .env file.")
+        print("   To run the autonomous agent, add one of the following to your .env file:")
+        print("   1) BROWSER_USE_API_KEY=bu_...   (for Browser Use Cloud)")
+        print("   2) OPENAI_API_KEY=sk-...        (for GPT-4o Local Agent)")
+        print("   3) GEMINI_API_KEY=AIzaSy...     (for Google Gemini Local Agent)")
+        print("\n" + "="*60 + "\n")
+        return
+
+    # 2. Run Scraping Agent
+    print("\n🚀 2. Launching Autonomous Flight Scraper Agent...")
     try:
-        res = await scrape_flights_with_browser_use(
+        result = await scrape_flights_with_browser_use(
             origin=origin,
             destination=destination,
             departure_date=dep_date,
         )
-        print("Scrape Complete! Output:", res)
+        print("\n" + "="*70)
+        print("🎉 SCRAPING COMPLETE! Extracted Live Airline Price Quotes:")
+        print("="*70)
+        
+        flights = []
+        if hasattr(result, "output") and hasattr(result.output, "flights"):
+            flights = result.output.flights
+        elif isinstance(result, dict) and "flights" in result:
+            flights = result["flights"]
+
+        if flights:
+            print(f"{'Airline':<18} | {'Flight No':<10} | {'Times':<18} | {'Price (INR)':<12} | {'Non-stop'}")
+            print("-" * 70)
+            for f in flights:
+                al = getattr(f, "airline", "") or (f.get("airline", "") if isinstance(f, dict) else "")
+                fn = getattr(f, "flight_number", "N/A") or (f.get("flight_number", "N/A") if isinstance(f, dict) else "N/A")
+                dep = getattr(f, "departure_time", "") or (f.get("departure_time", "") if isinstance(f, dict) else "")
+                arr = getattr(f, "arrival_time", "") or (f.get("arrival_time", "") if isinstance(f, dict) else "")
+                times = f"{dep} -> {arr}"
+                pr = getattr(f, "price_inr", 0) or (f.get("price_inr", 0) if isinstance(f, dict) else 0)
+                ns = "✅ Direct" if (getattr(f, "is_non_stop", True) if not isinstance(f, dict) else f.get("is_non_stop", True)) else "1-stop"
+                print(f"{al:<18} | {fn:<10} | {times:<18} | ₹{pr:<11,} | {ns}")
+            print("=" * 70)
+        else:
+            print(result)
+
     except Exception as err:
-        print(f"\n⚠️ Execution error: {err}")
+        print(f"\n❌ Error running browser agent: {err}")
 
 
 if __name__ == "__main__":
