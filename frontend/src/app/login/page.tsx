@@ -42,7 +42,7 @@ export default function LoginPage() {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
 
-  // Draw security CAPTCHA canvas in Light Executive Theme
+  // Draw security CAPTCHA canvas
   const drawCaptcha = useCallback((code: string) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -52,11 +52,11 @@ export default function LoginPage() {
     const width = canvas.width;
     const height = canvas.height;
 
-    // Background in Soft Linen / Steel tint
+    // Background in Soft Linen tint
     ctx.fillStyle = "#EEF4FA";
     ctx.fillRect(0, 0, width, height);
 
-    // Random Background Noise Lines
+    // Random Background Noise Lines in Soft Slate Gray-Blue (#7D8CA3)
     for (let i = 0; i < 4; i++) {
       ctx.strokeStyle = "rgba(125, 140, 163, 0.4)";
       ctx.lineWidth = 1;
@@ -66,7 +66,7 @@ export default function LoginPage() {
       ctx.stroke();
     }
 
-    // Characters in Executive Navy
+    // Characters in Executive Navy Blue (#1E2A44)
     const charSpacing = (width - 16) / code.length;
     for (let i = 0; i < code.length; i++) {
       const char = code[i];
@@ -128,20 +128,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 sm:p-6 overflow-hidden">
-      {/* Full-bleed Aviation Background Image with Glass Overlay */}
+    <div className="relative min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 sm:p-6 bg-[#F8FAFC] overflow-hidden">
+      {/* Background Photography with Soft White Wash Overlay */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0 opacity-20"
         style={{ backgroundImage: "url('/desktop_runway_bg.jpg')" }}
-      >
-        {/* Crisp Light Gradient Backdrop Filter */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/35 via-slate-900/25 to-slate-900/40 backdrop-blur-[3px]" />
-      </div>
+      />
 
-      {/* Central Glassmorphic Light Theme Government Login Box */}
-      <div className="relative z-10 w-full max-w-md bg-white/95 backdrop-blur-xl border border-white/80 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
+      {/* Central Pure White Government Login Box */}
+      <div className="relative z-10 w-full max-w-md bg-white border border-[#CBDCEE] rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
         
-        {/* Top Header: Official Emblem & Department Name */}
+        {/* Top Header: Official Emblem & Department Name with Exact Color Palette */}
         <div className="text-center space-y-2 border-b border-[#CBDCEE] pb-5">
           <div className="flex justify-center">
             <Image
@@ -149,23 +146,27 @@ export default function LoginPage() {
               alt="National Emblem of India"
               width={34}
               height={50}
-              className="object-contain max-h-12 w-auto drop-shadow-sm"
+              className="object-contain max-h-12 w-auto"
               unoptimized
               priority
             />
           </div>
           <div>
+            {/* Deep Midnight Black/Navy: #111827 */}
             <h1 className="text-base font-extrabold text-[#111827] tracking-tight">
               GOVERNMENT OF INDIA
             </h1>
+            {/* Executive Navy Blue: #1E2A44 */}
             <p className="text-xs text-[#1E2A44] font-bold">
               Ministry of Statistics & Programme Implementation
             </p>
+            {/* Soft Slate Gray-Blue: #7D8CA3 */}
             <p className="text-[11px] text-[#7D8CA3]">
               Project CEN • Airfare Price Index Portal
             </p>
           </div>
           <div className="pt-2">
+            {/* Badge: Steel Navy #2E4A6B & Executive Navy #1E2A44 */}
             <span className="inline-block text-[11px] font-bold uppercase tracking-wider px-3 py-0.5 rounded bg-[#EEF4FA] border border-[#CBDCEE] text-[#1E2A44]">
               Official Login
             </span>
@@ -184,6 +185,7 @@ export default function LoginPage() {
         <form onSubmit={handleFormSubmit} className="space-y-4">
           {/* Username / Registered Email */}
           <div>
+            {/* Primary Heading / Label: #111827 */}
             <label className="block text-xs font-semibold text-[#111827] mb-1">
               Username (Registered Email Address)
             </label>
@@ -266,7 +268,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Login Submit Button */}
+          {/* Login Submit Button: Executive Navy (#1E2A44) with Linen Cream Ivory (#F5F3EC) text */}
           <div className="pt-2">
             <button
               type="submit"
@@ -277,20 +279,20 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {/* Footer links: New User? | Forgot Password? */}
-          <div className="flex items-center justify-center gap-2 pt-1 text-xs text-[#7D8CA3]">
+          {/* Footer links: Steel Navy (#2E4A6B) */}
+          <div className="flex items-center justify-center gap-2 pt-1 text-xs text-[#2E4A6B]">
             <button
               type="button"
               onClick={() => setShowRegisterModal(true)}
-              className="hover:text-[#111827] transition-colors cursor-pointer font-medium"
+              className="hover:text-[#111827] hover:underline transition-colors cursor-pointer font-semibold"
             >
               New User?
             </button>
-            <span>|</span>
+            <span className="text-[#7D8CA3]">|</span>
             <button
               type="button"
               onClick={() => setShowForgotModal(true)}
-              className="hover:text-[#111827] transition-colors cursor-pointer font-medium"
+              className="hover:text-[#111827] hover:underline transition-colors cursor-pointer font-semibold"
             >
               Forgot Password?
             </button>
@@ -298,7 +300,7 @@ export default function LoginPage() {
         </form>
       </div>
 
-      {/* Forgot Password Modal (Light Theme) */}
+      {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white border border-[#CBDCEE] rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3">
@@ -328,7 +330,7 @@ export default function LoginPage() {
         </div>
       )}
 
-      {/* New User Modal (Light Theme) */}
+      {/* New User Modal */}
       {showRegisterModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white border border-[#CBDCEE] rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3">
