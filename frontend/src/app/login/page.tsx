@@ -42,7 +42,7 @@ export default function LoginPage() {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
 
-  // Draw security CAPTCHA canvas in Gold / Dark theme
+  // Draw security CAPTCHA canvas in Light Executive Theme
   const drawCaptcha = useCallback((code: string) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -52,13 +52,13 @@ export default function LoginPage() {
     const width = canvas.width;
     const height = canvas.height;
 
-    // Background
-    ctx.fillStyle = "#0B132B";
+    // Background in Soft Linen / Steel tint
+    ctx.fillStyle = "#EEF4FA";
     ctx.fillRect(0, 0, width, height);
 
-    // Random Background Noise Lines in Gold
+    // Random Background Noise Lines
     for (let i = 0; i < 4; i++) {
-      ctx.strokeStyle = "rgba(212, 175, 55, 0.25)";
+      ctx.strokeStyle = "rgba(125, 140, 163, 0.4)";
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(Math.random() * width, Math.random() * height);
@@ -66,13 +66,13 @@ export default function LoginPage() {
       ctx.stroke();
     }
 
-    // Characters in Gold
+    // Characters in Executive Navy
     const charSpacing = (width - 16) / code.length;
     for (let i = 0; i < code.length; i++) {
       const char = code[i];
       ctx.save();
       ctx.font = "bold 18px 'Courier New', monospace";
-      ctx.fillStyle = "#E5C07B";
+      ctx.fillStyle = "#1E2A44";
       const x = 8 + i * charSpacing;
       const y = height / 2 + 5;
       ctx.fillText(char, x, y);
@@ -128,36 +128,45 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 sm:p-6 relative bg-[#060D1A]">
-      {/* Central Previous Palette Dark Gold Government Login Box */}
-      <div className="w-full max-w-md bg-[#0D1829]/95 border border-slate-700/80 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6 backdrop-blur-md">
+    <div className="relative min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 sm:p-6 overflow-hidden">
+      {/* Full-bleed Aviation Background Image with Glass Overlay */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+        style={{ backgroundImage: "url('/desktop_runway_bg.jpg')" }}
+      >
+        {/* Crisp Light Gradient Backdrop Filter */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/35 via-slate-900/25 to-slate-900/40 backdrop-blur-[3px]" />
+      </div>
+
+      {/* Central Glassmorphic Light Theme Government Login Box */}
+      <div className="relative z-10 w-full max-w-md bg-white/95 backdrop-blur-xl border border-white/80 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
         
         {/* Top Header: Official Emblem & Department Name */}
-        <div className="text-center space-y-2 border-b border-slate-700/70 pb-5">
+        <div className="text-center space-y-2 border-b border-[#CBDCEE] pb-5">
           <div className="flex justify-center">
             <Image
-              src="/emblem_lion_gold.png"
+              src="/emblem_lion_dark.png"
               alt="National Emblem of India"
-              width={36}
-              height={52}
-              className="object-contain max-h-14 w-auto drop-shadow-md"
+              width={34}
+              height={50}
+              className="object-contain max-h-12 w-auto drop-shadow-sm"
               unoptimized
               priority
             />
           </div>
           <div>
-            <h1 className="text-base font-extrabold text-white tracking-tight">
+            <h1 className="text-base font-extrabold text-[#111827] tracking-tight">
               GOVERNMENT OF INDIA
             </h1>
-            <p className="text-xs text-[var(--color-gold)] font-bold">
+            <p className="text-xs text-[#1E2A44] font-bold">
               Ministry of Statistics & Programme Implementation
             </p>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-[#7D8CA3]">
               Project CEN • Airfare Price Index Portal
             </p>
           </div>
           <div className="pt-2">
-            <span className="inline-block text-[11px] font-bold uppercase tracking-wider px-3 py-0.5 rounded bg-slate-800 border border-slate-700 text-[var(--color-gold)]">
+            <span className="inline-block text-[11px] font-bold uppercase tracking-wider px-3 py-0.5 rounded bg-[#EEF4FA] border border-[#CBDCEE] text-[#1E2A44]">
               Official Login
             </span>
           </div>
@@ -165,17 +174,17 @@ export default function LoginPage() {
 
         {/* Error Alert Banner */}
         {(error || captchaError) && (
-          <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-start gap-2 text-xs">
+          <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-start gap-2 text-xs">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <span>{error || captchaError}</span>
           </div>
         )}
 
-        {/* Form */}
+        {/* Standard Clean Form */}
         <form onSubmit={handleFormSubmit} className="space-y-4">
           {/* Username / Registered Email */}
           <div>
-            <label className="block text-xs font-semibold text-slate-200 mb-1">
+            <label className="block text-xs font-semibold text-[#111827] mb-1">
               Username (Registered Email Address)
             </label>
             <input
@@ -184,13 +193,13 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="officer@mospi.gov.in"
               required
-              className="w-full px-3 py-2 text-xs sm:text-sm rounded-lg bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none focus:ring-1 focus:ring-[var(--color-gold)] focus:border-[var(--color-gold)] transition-colors placeholder:text-slate-500"
+              className="w-full px-3 py-2 text-xs sm:text-sm rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#1E2A44]/20 focus:border-[#1E2A44] transition-colors placeholder:text-[#7D8CA3]"
             />
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-xs font-semibold text-slate-200 mb-1">
+            <label className="block text-xs font-semibold text-[#111827] mb-1">
               Password
             </label>
             <div className="relative">
@@ -200,12 +209,12 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
                 required
-                className="w-full px-3 py-2 pr-9 text-xs sm:text-sm rounded-lg bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none focus:ring-1 focus:ring-[var(--color-gold)] focus:border-[var(--color-gold)] transition-colors placeholder:text-slate-500"
+                className="w-full px-3 py-2 pr-9 text-xs sm:text-sm rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#1E2A44]/20 focus:border-[#1E2A44] transition-colors placeholder:text-[#7D8CA3]"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
+                className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#7D8CA3] hover:text-[#111827] cursor-pointer"
                 title={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -215,7 +224,7 @@ export default function LoginPage() {
 
           {/* Single-Line CAPTCHA Section */}
           <div>
-            <label className="block text-xs font-semibold text-slate-200 mb-1">
+            <label className="block text-xs font-semibold text-[#111827] mb-1">
               Security Code (CAPTCHA)
             </label>
             <div className="flex items-center gap-2">
@@ -226,7 +235,7 @@ export default function LoginPage() {
                   width={110}
                   height={36}
                   data-captcha={captchaCode}
-                  className="rounded-lg border border-slate-700 block select-none cursor-pointer bg-[#0B132B]"
+                  className="rounded-lg border border-[#CBDCEE] block select-none cursor-pointer bg-[#EEF4FA]"
                   onClick={refreshCaptcha}
                   title="Click to reload CAPTCHA"
                 />
@@ -236,7 +245,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={refreshCaptcha}
-                className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-[var(--color-gold)] transition-colors cursor-pointer flex-shrink-0"
+                className="p-2 rounded-lg bg-[#EEF4FA] hover:bg-[#DDE9F6] border border-[#CBDCEE] text-[#1E2A44] transition-colors cursor-pointer flex-shrink-0"
                 title="Reload CAPTCHA"
               >
                 <RotateCcw className={`w-4 h-4 ${isRotating ? "animate-spin" : ""}`} />
@@ -251,29 +260,29 @@ export default function LoginPage() {
                   placeholder="Enter code"
                   maxLength={6}
                   required
-                  className="w-full px-3 py-2 text-xs sm:text-sm font-mono tracking-wider rounded-lg bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none focus:ring-1 focus:ring-[var(--color-gold)] focus:border-[var(--color-gold)] transition-colors placeholder:text-slate-500"
+                  className="w-full px-3 py-2 text-xs sm:text-sm font-mono tracking-wider rounded-lg bg-white border border-[#CBDCEE] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#1E2A44]/20 focus:border-[#1E2A44] transition-colors placeholder:text-[#7D8CA3]"
                 />
               </div>
             </div>
           </div>
 
-          {/* Login Submit Button in Gold */}
+          {/* Login Submit Button */}
           <div className="pt-2">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 px-4 rounded-lg bg-[var(--color-gold)] hover:bg-[#C59B27] text-slate-950 font-extrabold text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/10 cursor-pointer disabled:opacity-50 border border-amber-400/40"
+              className="w-full py-2.5 px-4 rounded-lg bg-[#1E2A44] hover:bg-[#111827] text-[#F5F3EC] font-bold text-xs sm:text-sm transition-all shadow-md cursor-pointer disabled:opacity-50 border border-[#111827]"
             >
               {isLoading ? "Verifying..." : "Login"}
             </button>
           </div>
 
           {/* Footer links: New User? | Forgot Password? */}
-          <div className="flex items-center justify-center gap-2 pt-1 text-xs text-slate-400">
+          <div className="flex items-center justify-center gap-2 pt-1 text-xs text-[#7D8CA3]">
             <button
               type="button"
               onClick={() => setShowRegisterModal(true)}
-              className="hover:text-[var(--color-gold)] transition-colors cursor-pointer"
+              className="hover:text-[#111827] transition-colors cursor-pointer font-medium"
             >
               New User?
             </button>
@@ -281,7 +290,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowForgotModal(true)}
-              className="hover:text-[var(--color-gold)] transition-colors cursor-pointer"
+              className="hover:text-[#111827] transition-colors cursor-pointer font-medium"
             >
               Forgot Password?
             </button>
@@ -289,29 +298,29 @@ export default function LoginPage() {
         </form>
       </div>
 
-      {/* Forgot Password Modal (Dark Gold Palette) */}
+      {/* Forgot Password Modal (Light Theme) */}
       {showForgotModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#0D1829] border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3 text-slate-100">
-            <div className="flex items-center justify-between font-bold text-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white border border-[#CBDCEE] rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3">
+            <div className="flex items-center justify-between text-[#111827] font-bold text-sm">
               <div className="flex items-center gap-2">
-                <KeyRound className="w-4 h-4 text-[var(--color-gold)]" />
+                <KeyRound className="w-4 h-4 text-[#1E2A44]" />
                 <span>Password Reset</span>
               </div>
               <button
                 onClick={() => setShowForgotModal(false)}
-                className="text-slate-400 hover:text-white p-1 cursor-pointer transition-colors"
+                className="text-[#7D8CA3] hover:text-[#111827] p-1 cursor-pointer transition-colors"
                 title="Close"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              For official password reset, contact the <strong className="text-white">MoSPI / NIC Helpdesk</strong> at <span className="font-mono text-[var(--color-gold)] font-bold">cpi.support@mospi.gov.in</span> or use credentials <span className="font-mono text-white font-bold">director.cpi@mospi.gov.in / Password@123</span>.
+            <p className="text-xs text-[#7D8CA3] leading-relaxed">
+              For official password reset, contact the <strong className="text-[#111827]">MoSPI / NIC Helpdesk</strong> at <span className="font-mono text-[#1E2A44] font-bold">cpi.support@mospi.gov.in</span> or use credentials <span className="font-mono text-[#111827] font-bold">director.cpi@mospi.gov.in / Password@123</span>.
             </p>
             <button
               onClick={() => setShowForgotModal(false)}
-              className="w-full py-2 bg-[var(--color-gold)] hover:bg-[#C59B27] text-slate-950 font-bold text-xs rounded-lg transition-colors cursor-pointer shadow-md"
+              className="w-full py-2 bg-[#1E2A44] hover:bg-[#111827] text-[#F5F3EC] font-bold text-xs rounded-lg transition-colors cursor-pointer shadow-sm"
             >
               OK
             </button>
@@ -319,29 +328,29 @@ export default function LoginPage() {
         </div>
       )}
 
-      {/* New User Modal (Dark Gold Palette) */}
+      {/* New User Modal (Light Theme) */}
       {showRegisterModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#0D1829] border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3 text-slate-100">
-            <div className="flex items-center justify-between font-bold text-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white border border-[#CBDCEE] rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3">
+            <div className="flex items-center justify-between text-[#111827] font-bold text-sm">
               <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-[var(--color-gold)]" />
+                <Building2 className="w-4 h-4 text-[#1E2A44]" />
                 <span>New User Registration</span>
               </div>
               <button
                 onClick={() => setShowRegisterModal(false)}
-                className="text-slate-400 hover:text-white p-1 cursor-pointer transition-colors"
+                className="text-[#7D8CA3] hover:text-[#111827] p-1 cursor-pointer transition-colors"
                 title="Close"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Official accounts for <strong className="text-white">Project CEN</strong> are provisioned through the MoSPI Computer Centre / NSO Division for verified government personnel.
+            <p className="text-xs text-[#7D8CA3] leading-relaxed">
+              Official accounts for <strong className="text-[#111827]">Project CEN</strong> are provisioned through the MoSPI Computer Centre / NSO Division for verified government personnel.
             </p>
             <button
               onClick={() => setShowRegisterModal(false)}
-              className="w-full py-2 bg-[var(--color-gold)] hover:bg-[#C59B27] text-slate-950 font-bold text-xs rounded-lg transition-colors cursor-pointer shadow-md"
+              className="w-full py-2 bg-[#1E2A44] hover:bg-[#111827] text-[#F5F3EC] font-bold text-xs rounded-lg transition-colors cursor-pointer shadow-sm"
             >
               OK
             </button>
